@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Controle de Faltas
 
 ## Sobre o Projeto
@@ -59,3 +60,6 @@ O **Controle de Faltas** é um sistema web para estudantes acompanharem suas fal
 ---
 
 Desenvolvido com ❤️ para facilitar sua vida acadêmica! 
+=======
+# Controle-de-Faltas
+>>>>>>> 0756b9eeef30cf2e6283d27e7c929eda255ebe72
