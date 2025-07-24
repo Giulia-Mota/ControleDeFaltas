@@ -1,70 +1,84 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useState } from 'react';
+import api from '../api/axiosConfig'; // ALTERAÇÃO IMPORTANTE
+import { useNavigate, Link } from 'react-router-dom';
 
-export default function Login() {
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [erro, setErro] = useState("");
+const Login = () => {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErro("");
+    setError(''); // Limpa erros anteriores
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        senha,
-      });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/dashboard");
+      const response = await api.post('/auth/login', formData); // USA O 'api'
+      localStorage.setItem('token', response.data.token);
+      navigate('/dashboard');
     } catch (err) {
-      setErro(err.response?.data?.message || "Erro ao fazer login.");
+      console.error('Erro de login:', err);
+      setError('Credenciais inválidas. Por favor, tente novamente.');
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center relative bg-[#D1B3FF] font-sans">
-      {/* Onda SVG lateral esquerda */}
-      <svg className="absolute left-0 top-0 h-full w-1/3 min-w-[200px] max-w-[400px] z-0" viewBox="0 0 300 900" fill="none" xmlns="http://www.w3.org/2000/svg" style={{transform: 'skewY(-12deg)'}}>
-        <path d="M0,0 Q60,200 0,400 Q100,600 0,900 L300,900 L300,0 Z" fill="#7C3AED" />
-      </svg>
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-10 z-10 mt-24">
-        <h2 className="text-3xl font-bold text-primary-dark text-center mb-8 font-sans">Entrar</h2>
-        {erro && <div className="mb-4 text-red-600 text-center">{erro}</div>}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">E-mail</label>
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <div className="p-8 max-w-md w-full bg-[#F5F5F5] rounded-2xl shadow-2xl">
+        <h2 className="text-4xl font-bold mb-8 text-center text-gray-800">Login</h2>
+        <form onSubmit={handleSubmit}>
+          {error && <p className="text-red-600 text-center mb-4">{error}</p>}
+          <div className="mb-6">
+            <label className="block text-gray-700 text-base font-bold mb-2" htmlFor="email">
+              Email
+            </label>
             <input
               type="email"
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-dark bg-creme"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              id="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="seuemail@exemplo.com"
+              className="w-full p-3 bg-white border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:border-purple-500 transition"
               required
             />
           </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Senha</label>
+          <div className="mb-8">
+            <label className="block text-gray-700 text-base font-bold mb-2" htmlFor="password">
+              Senha
+            </label>
             <input
               type="password"
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-dark bg-creme"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              name="password"
+              id="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="********"
+              className="w-full p-3 bg-white border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:border-purple-500 transition"
               required
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-primary-dark text-white py-3 rounded-full font-bold text-lg shadow hover:bg-primary transition"
+            className="w-full bg-[#9370DB] text-white p-3 rounded-lg mt-4 hover:bg-[#8A2BE2] transition-colors duration-300 font-bold text-lg"
           >
             Entrar
           </button>
         </form>
-        <p className="mt-6 text-center text-gray-600 font-sans">
-          Não tem conta? <Link to="/register" className="text-primary-dark hover:underline font-semibold">Cadastre-se</Link>
+        <p className="text-center text-gray-600 mt-6">
+          Não tem uma conta?{' '}
+          <Link to="/register" className="text-purple-700 hover:underline font-semibold">
+            Cadastre-se
+          </Link>
         </p>
       </div>
     </div>
   );
-} 
+};
+
+export default Login;

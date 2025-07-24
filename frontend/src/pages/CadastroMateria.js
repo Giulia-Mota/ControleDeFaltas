@@ -1,98 +1,107 @@
-import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import api from '../api/axiosConfig';
+import { useNavigate, Link } from 'react-router-dom';
 
-export default function CadastroMateria() {
-  const [form, setForm] = useState({
-    nome: "",
-    professor: "",
-    cargaHoraria: "",
-    aulasPorSemana: "",
-    aulasPorDia: "",
+const CadastroMateria = () => {
+  const [formData, setFormData] = useState({
+    nome: '',
+    professor: '',
+    cargaHoraria: '',
+    aulasPorDia: '',
+    aulasPorSemana: '',
   });
-  const [erro, setErro] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  const [limiteEmDias, setLimiteEmDias] = useState(0);
+  const [limiteEmHoras, setLimiteEmHoras] = useState(0);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Cálculo automático do limite de faltas em dias
-  const limiteFaltasDias = useMemo(() => {
-    const carga = Number(form.cargaHoraria);
-    const aulasPorDia = Number(form.aulasPorDia);
-    if (!carga || !aulasPorDia) return 0;
-    const totalDias = carga / aulasPorDia;
-    return Math.floor(totalDias * 0.25);
-  }, [form.cargaHoraria, form.aulasPorDia]);
+  useEffect(() => {
+    const carga = parseInt(formData.cargaHoraria, 10);
+    const aulasDia = parseInt(formData.aulasPorDia, 10);
+
+    if (carga > 0 && aulasDia > 0) {
+      const limiteTotalHoras = Math.floor(carga * 0.25);
+      setLimiteEmHoras(limiteTotalHoras);
+      const limiteTotalDias = Math.floor(limiteTotalHoras / aulasDia);
+      setLimiteEmDias(limiteTotalDias);
+    } else {
+      setLimiteEmDias(0);
+      setLimiteEmHoras(0);
+    }
+  }, [formData.cargaHoraria, formData.aulasPorDia]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErro("");
-    setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5000/api/materias", {
-        ...form,
-        cargaHoraria: Number(form.cargaHoraria),
-        aulasPorSemana: Number(form.aulasPorSemana),
-        aulasPorDia: Number(form.aulasPorDia),
-        limiteFaltas: limiteFaltasDias,
-        horarios: [], // O usuário pode editar depois
-        datasAulas: [], // O usuário pode editar depois
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
+      const token = localStorage.getItem('token');
+      const dadosParaEnviar = {
+        nome: formData.nome,
+        professor: formData.professor,
+        limiteFaltas: limiteEmDias,
+      };
+
+      await api.post('/materias', dadosParaEnviar, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      navigate("/dashboard");
+      navigate('/dashboard');
     } catch (err) {
-      setErro(err.response?.data?.message || "Erro ao cadastrar matéria.");
-    } finally {
-      setLoading(false);
+      console.error("Erro ao cadastrar matéria:", err);
+      setError('Não foi possível cadastrar a matéria. Verifique os dados e tente novamente.');
     }
   };
 
   return (
-    <div className="w-full max-w-lg bg-white rounded-xl shadow-lg p-8 mx-auto mt-8">
-      <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">Cadastrar Nova Matéria</h2>
-      {erro && <div className="mb-4 text-red-600 text-center">{erro}</div>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-700">Nome da Matéria</label>
-          <input name="nome" value={form.nome} onChange={handleChange} required className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
-        </div>
-        <div>
-          <label className="block text-gray-700">Professor</label>
-          <input name="professor" value={form.professor} onChange={handleChange} required className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
-        </div>
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className="block text-gray-700">Carga Horária (h)</label>
-            <input name="cargaHoraria" type="number" min="1" value={form.cargaHoraria} onChange={handleChange} required className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
-          </div>
-          <div className="flex-1">
-            <label className="block text-gray-700">Aulas por Semana</label>
-            <input name="aulasPorSemana" type="number" min="1" value={form.aulasPorSemana} onChange={handleChange} required className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
-          </div>
-        </div>
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className="block text-gray-700">Aulas por Dia</label>
-            <input name="aulasPorDia" type="number" min="1" value={form.aulasPorDia} onChange={handleChange} required className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
-          </div>
-          <div className="flex-1 flex flex-col justify-end">
-            <span className="block text-gray-700 font-semibold mt-6">Limite de faltas (dias): <span className="text-blue-700">{limiteFaltasDias}</span></span>
-          </div>
-        </div>
-        <div className="flex gap-4">
-          <button type="submit" disabled={loading} className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50">
-            {loading ? "Cadastrando..." : "Cadastrar"}
-          </button>
-          <button type="button" onClick={() => navigate('/dashboard')} className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-400 transition">
-            Cancelar
-          </button>
-        </div>
-      </form>
+    <div className="min-h-screen w-full flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl bg-[#F5F5F5] p-8 rounded-2xl shadow-2xl">
+        <header className="flex items-center justify-between border-b border-gray-300 pb-4 mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">Cadastrar Matéria</h1>
+            <Link to="/dashboard" className="bg-gray-600 text-white text-center font-bold py-2 px-5 rounded-lg hover:bg-gray-700 transition-colors">
+                Voltar
+            </Link>
+        </header>
+        <main>
+          <form onSubmit={handleSubmit}>
+            {error && <p className="text-red-600 text-center mb-4">{error}</p>}
+            <div className="mb-6">
+              <label className="block text-gray-700 text-base font-bold mb-2" htmlFor="nome">Nome da Matéria</label>
+              <input type="text" name="nome" value={formData.nome} onChange={handleChange} placeholder="Ex: Engenharia de Software II" className="w-full p-3 bg-white border border-gray-300 rounded-md" required />
+            </div>
+            <div className="mb-6">
+              <label className="block text-gray-700 text-base font-bold mb-2" htmlFor="professor">Nome do Professor(a)</label>
+              <input type="text" name="professor" value={formData.professor} onChange={handleChange} placeholder="Ex: João da Silva" className="w-full p-3 bg-white border border-gray-300 rounded-md" required />
+            </div>
+            <div className="grid md:grid-cols-3 gap-6 mb-6">
+              <div>
+                <label className="block text-gray-700 text-base font-bold mb-2" htmlFor="cargaHoraria">Carga Horária Total</label>
+                <input type="number" name="cargaHoraria" value={formData.cargaHoraria} onChange={handleChange} placeholder="Ex: 68" className="w-full p-3 bg-white border border-gray-300 rounded-md" required min="1" />
+              </div>
+              <div>
+                <label className="block text-gray-700 text-base font-bold mb-2" htmlFor="aulasPorDia">Aulas por Dia</label>
+                <input type="number" name="aulasPorDia" value={formData.aulasPorDia} onChange={handleChange} placeholder="Ex: 2" className="w-full p-3 bg-white border border-gray-300 rounded-md" required min="1" />
+              </div>
+              <div>
+                <label className="block text-gray-700 text-base font-bold mb-2" htmlFor="aulasPorSemana">Aulas por Semana</label>
+                <input type="number" name="aulasPorSemana" value={formData.aulasPorSemana} onChange={handleChange} placeholder="Ex: 2" className="w-full p-3 bg-white border border-gray-300 rounded-md" required min="1" />
+              </div>
+            </div>
+            <div className="mb-8 p-4 bg-purple-100 border border-purple-300 rounded-lg text-center">
+              <p className="text-gray-700">Com base nestes dados, você pode faltar no máximo:</p>
+              <p className="text-3xl font-bold text-purple-800 mt-1">{limiteEmDias} dias</p>
+              <p className="text-sm text-gray-500 mt-1">(Total de {limiteEmHoras} horas de falta permitidas)</p>
+            </div>
+            <button type="submit" className="w-full bg-[#9370DB] text-white p-3 rounded-lg mt-4 hover:bg-[#8A2BE2] transition-colors duration-300 font-bold text-lg">
+              Salvar Matéria
+            </button>
+          </form>
+        </main>
+      </div>
     </div>
   );
-} 
+};
+
+export default CadastroMateria;

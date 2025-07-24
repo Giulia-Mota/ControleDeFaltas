@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const authController = require('../controllers/authController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
-router.post('/register', authController.register);
-router.post('/login', authController.login);
+// Importamos as funções diretamente do controller
+const { register, login, getMe } = require('../controllers/authController');
 
-module.exports = router; 
+// Agora usamos as funções que importamos
+router.post('/register', register);
+router.post('/login', login);
+router.get('/me', authMiddleware, getMe);
+
+module.exports = router;

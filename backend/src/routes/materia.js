@@ -1,11 +1,29 @@
-const express = require('express');
-const router = express.Router();
-const materiaController = require('../controllers/materiaController');
-const auth = require('../middlewares/authMiddleware');
+const mongoose = require('mongoose');
 
-router.post('/', auth, materiaController.create);
-router.get('/', auth, materiaController.list);
-router.get('/:materiaId/progresso', auth, materiaController.progressoFaltas);
-router.get('/relatorio/geral', auth, materiaController.relatorioGeral);
+const materiaSchema = new mongoose.Schema({
+  nome: {
+    type: String,
+    required: true,
+  },
+  professor: {
+    type: String,
+    required: true,
+  },
+  limiteFaltas: { // O único campo de faltas que precisamos salvar
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  faltas: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+});
 
-module.exports = router; 
+module.exports = mongoose.model('Materia', materiaSchema);

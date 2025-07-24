@@ -1,81 +1,103 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useState } from 'react';
+import api from '../api/axiosConfig'; // ALTERAÇÃO IMPORTANTE
+import { useNavigate, Link } from 'react-router-dom';
 
-export default function Register() {
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [erro, setErro] = useState("");
+const Register = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErro("");
+    setError(''); // Limpa erros anteriores
     try {
-      await axios.post("http://localhost:5000/api/auth/register", {
-        nome,
-        email,
-        senha,
-      });
-      // Após cadastro, fazer login automático
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        senha,
-      });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/dashboard");
+      await api.post('/auth/register', formData); // USA O 'api'
+      navigate('/login');
     } catch (err) {
-      setErro(err.response?.data?.message || "Erro ao cadastrar.");
+      console.error('Erro de registro:', err);
+      if (err.response && err.response.data.error && err.response.data.error.code === 11000) {
+        setError('Este email ou nome de usuário já está em uso.');
+      } else {
+        setError('Erro ao registrar. Verifique os dados e tente novamente.');
+      }
     }
   };
 
   return (
-    <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-      <h2 className="text-2xl font-bold text-center mb-6 text-blue-700">Cadastro</h2>
-      {erro && <div className="mb-4 text-red-600 text-center">{erro}</div>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-700">Nome</label>
-          <input
-            type="text"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">E-mail</label>
-          <input
-            type="email"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Senha</label>
-          <input
-            type="password"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
-        >
-          Cadastrar
-        </button>
-      </form>
-      <p className="mt-4 text-center text-gray-600">
-        Já tem conta? <Link to="/login" className="text-blue-600 hover:underline">Entrar</Link>
-      </p>
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <div className="p-8 max-w-md w-full bg-[#F5F5F5] rounded-2xl shadow-2xl">
+        <h2 className="text-4xl font-bold mb-8 text-center text-gray-800">Cadastro</h2>
+        <form onSubmit={handleSubmit}>
+          {error && <p className="text-red-600 text-center mb-4">{error}</p>}
+          <div className="mb-6">
+            <label className="block text-gray-700 text-base font-bold mb-2" htmlFor="username">
+              Nome de Usuário
+            </label>
+            <input
+              type="text"
+              name="username"
+              id="username"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="Seu nome de usuário"
+              className="w-full p-3 bg-white border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:border-purple-500 transition"
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <label className="block text-gray-700 text-base font-bold mb-2" htmlFor="email">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="seuemail@exemplo.com"
+              className="w-full p-3 bg-white border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:border-purple-500 transition"
+              required
+            />
+          </div>
+          <div className="mb-8">
+            <label className="block text-gray-700 text-base font-bold mb-2" htmlFor="password">
+              Senha (mínimo 6 caracteres)
+            </label>
+            <input
+              type="password"
+              name="password"
+              id="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="********"
+              className="w-full p-3 bg-white border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:border-purple-500 transition"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-[#9370DB] text-white p-3 rounded-lg mt-4 hover:bg-[#8A2BE2] transition-colors duration-300 font-bold text-lg"
+          >
+            Cadastrar
+          </button>
+        </form>
+        <p className="text-center text-gray-600 mt-6">
+          Já tem uma conta?{' '}
+          <Link to="/login" className="text-purple-700 hover:underline font-semibold">
+            Faça login
+          </Link>
+        </p>
+      </div>
     </div>
   );
-} 
+};
+
+export default Register;

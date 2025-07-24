@@ -1,79 +1,100 @@
 const Materia = require('../models/Materia');
-const Falta = require('../models/Falta');
 
-exports.create = async (req, res) => {
+// Criar uma nova matéria
+const createMateria = async (req, res) => {
   try {
-    const { nome, professor, cargaHoraria, aulasPorSemana, aulasPorDia, horarios, datasAulas, limiteFaltas } = req.body;
-    if (!nome || !professor || !cargaHoraria || !aulasPorSemana || !aulasPorDia || !horarios || !limiteFaltas) {
-      return res.status(400).json({ message: 'Preencha todos os campos obrigatórios.' });
+    const { nome, professor, limiteFaltas } = req.body;
+    const userId = req.user.userId;
+
+    if (!nome || !professor || limiteFaltas === undefined) {
+      return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
     }
+
     const materia = new Materia({
       nome,
       professor,
-      cargaHoraria,
-      aulasPorSemana,
-      aulasPorDia,
-      horarios,
-      datasAulas,
       limiteFaltas,
-      user: req.userId
+      faltas: 0,
+      user: userId,
     });
+
     await materia.save();
-    return res.status(201).json({ message: 'Matéria cadastrada com sucesso!', materia });
-  } catch (err) {
-    return res.status(500).json({ message: 'Erro ao cadastrar matéria.' });
+    res.status(201).json(materia);
+  } catch (error) {
+    console.error("ERRO DETALHADO AO SALVAR MATÉRIA:", error);
+    res.status(400).json({ message: 'Erro ao cadastrar matéria no banco de dados.', error: error.message });
   }
 };
 
-exports.list = async (req, res) => {
+// (As outras funções do controller continuam iguais)
+
+// Obter todas as matérias do usuário logado
+exports.getMaterias = async (req, res) => {
   try {
-    const materias = await Materia.find({ user: req.userId });
-    return res.status(200).json(materias);
-  } catch (err) {
-    return res.status(500).json({ message: 'Erro ao buscar matérias.' });
+    console.log('[materiaController] - Iniciando busca de matérias...');
+    const materias = await Materia.find({ user: req.user.userId });
+    console.log(`[materiaController] - ${materias.length} matérias encontradas. Enviando resposta.`);
+    res.json(materias);
+  } catch (error) {
+    console.error('[materiaController] - ERRO ao buscar matérias:', error);
+    res.status(500).json({ message: 'Erro no servidor' });
   }
 };
 
-exports.progressoFaltas = async (req, res) => {
+// Obter uma matéria específica
+const getMateriaById = async (req, res) => {
   try {
-    const { materiaId } = req.params;
-    const materia = await Materia.findOne({ _id: materiaId, user: req.userId });
+    const materia = await Materia.findOne({ _id: req.params.id, user: req.user.userId });
     if (!materia) {
-      return res.status(404).json({ message: 'Matéria não encontrada.' });
+      return res.status(404).json({ message: 'Matéria não encontrada' });
     }
-    const faltas = await Falta.find({ materia: materiaId, user: req.userId });
-    const totalFaltas = faltas.length;
-    const limiteFaltas = materia.limiteFaltas;
-    const emRisco = totalFaltas >= limiteFaltas * 0.75;
-    return res.status(200).json({
-      totalFaltas,
-      limiteFaltas,
-      emRisco,
-      podeFaltar: Math.max(0, limiteFaltas - totalFaltas)
-    });
-  } catch (err) {
-    return res.status(500).json({ message: 'Erro ao calcular progresso de faltas.' });
+    res.json(materia);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro no servidor' });
   }
 };
 
-exports.relatorioGeral = async (req, res) => {
+// Adicionar ou remover uma falta
+const updateFaltas = async (req, res) => {
   try {
-    const materias = await Materia.find({ user: req.userId });
-    const relatorio = await Promise.all(materias.map(async (materia) => {
-      const faltas = await Falta.countDocuments({ materia: materia._id, user: req.userId });
-      const emRisco = faltas >= materia.limiteFaltas * 0.75;
-      return {
-        materiaId: materia._id,
-        nome: materia.nome,
-        professor: materia.professor,
-        limiteFaltas: materia.limiteFaltas,
-        totalFaltas: faltas,
-        emRisco,
-        podeFaltar: Math.max(0, materia.limiteFaltas - faltas)
-      };
-    }));
-    return res.status(200).json(relatorio);
-  } catch (err) {
-    return res.status(500).json({ message: 'Erro ao gerar relatório.' });
+    const { action } = req.body;
+    const materia = await Materia.findOne({ _id: req.params.id, user: req.user.userId });
+
+    if (!materia) {
+      return res.status(404).json({ message: 'Matéria não encontrada' });
+    }
+
+    if (action === 'add') {
+      materia.faltas += 1;
+    } else if (action === 'remove' && materia.faltas > 0) {
+      materia.faltas -= 1;
+    }
+
+    await materia.save();
+    res.json(materia);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao atualizar faltas' });
   }
-}; 
+};
+
+// Excluir uma matéria
+const deleteMateria = async (req, res) => {
+  try {
+    const materia = await Materia.findOneAndDelete({ _id: req.params.id, user: req.user.userId });
+    if (!materia) {
+      return res.status(404).json({ message: 'Matéria não encontrada' });
+    }
+    res.json({ message: 'Matéria excluída com sucesso' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao excluir matéria' });
+  }
+};
+
+// Exporta todas as funções de uma vez no final
+module.exports = {
+  createMateria,
+  getMaterias,
+  getMateriaById,
+  updateFaltas,
+  deleteMateria
+};
