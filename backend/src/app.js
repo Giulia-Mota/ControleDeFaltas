@@ -31,11 +31,13 @@ if (!MONGO_URI) {
 
 // 2. Tenta conectar ao banco de dados
 console.log('A tentar conectar ao MongoDB...');
-mongoose.connect(MONGO_URI)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('>>> Conexão com o MongoDB estabelecida com sucesso! <<<');
     // 3. Inicia o servidor APENAS se a conexão for bem-sucedida
-    app.listen(PORT, () => console.log(`>>> Servidor backend a rodar na porta ${PORT} <<<`));
+    const PORT = process.env.PORT || 5000; // Usa a porta do .env ou 3001 como padrão
+    app.listen(PORT, () => {console.log(`Servidor rodando na porta ${PORT}`);
+});
   })
   .catch(err => {
     console.error('!!! FALHA AO CONECTAR COM O MONGODB !!!');
