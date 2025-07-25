@@ -1,4 +1,4 @@
-// frontend/src/pages/Register/Register.js - CÓDIGO CORRIGIDO
+// frontend/src/pages/Register/Register.js - APENAS A URL DA API FOI ALTERADA
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +14,7 @@ const Register = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    // ADICIONADO: Lê a URL da API da variável de ambiente
     const API_URL = process.env.REACT_APP_API_URL;
 
     const handleChange = (e) => {
@@ -23,6 +24,7 @@ const Register = () => {
     const onSubmit = async (e) => {
         e.preventDefault();
         try {
+            // ALTERADO: Usa a variável API_URL em vez de 'localhost'
             await axios.post(`${API_URL}/api/auth/register`, formData);
             navigate('/login');
         } catch (err) {

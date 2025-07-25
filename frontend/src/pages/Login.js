@@ -1,4 +1,4 @@
-// frontend/src/pages/Login/Login.js - CÓDIGO CORRIGIDO
+// frontend/src/pages/Login/Login.js - APENAS A URL DA API FOI ALTERADA
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ const Login = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    // ADICIONADO: Lê a URL da API da variável de ambiente
     const API_URL = process.env.REACT_APP_API_URL;
 
     const handleChange = (e) => {
@@ -22,6 +23,7 @@ const Login = () => {
     const onSubmit = async (e) => {
         e.preventDefault();
         try {
+            // ALTERADO: Usa a variável API_URL em vez de 'localhost'
             const res = await axios.post(`${API_URL}/api/auth/login`, formData);
             localStorage.setItem('token', res.data.token);
             navigate('/dashboard');
