@@ -1,100 +1,90 @@
 const Materia = require('../models/Materia');
 
-// Criar uma nova matéria
 const createMateria = async (req, res) => {
   try {
-    const { nome, professor, limiteFaltas } = req.body;
+    // AQUI ESTÁ A CORREÇÃO: Garantimos que ele recebe a cargaHoraria do formulário
+    const { nome, professor, limiteFaltas, cargaHoraria } = req.body;
     const userId = req.user.userId;
-
-    if (!nome || !professor || limiteFaltas === undefined) {
-      return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
-    }
 
     const materia = new Materia({
       nome,
       professor,
+      cargaHoraria, // E a usa para criar a nova matéria
       limiteFaltas,
-      faltas: 0,
+      faltas: [],
       user: userId,
     });
 
     await materia.save();
     res.status(201).json(materia);
   } catch (error) {
-    console.error("ERRO DETALHADO AO SALVAR MATÉRIA:", error);
-    res.status(400).json({ message: 'Erro ao cadastrar matéria no banco de dados.', error: error.message });
+    console.error("ERRO DETALHADO AO CRIAR MATÉRIA:", error);
+    res.status(400).json({ message: 'Erro ao salvar a matéria no banco de dados.', error: error.message });
   }
 };
 
-// (As outras funções do controller continuam iguais)
-
-// Obter todas as matérias do usuário logado
-exports.getMaterias = async (req, res) => {
+// As outras funções permanecem iguais
+const getMaterias = async (req, res) => {
   try {
-    console.log('[materiaController] - Iniciando busca de matérias...');
     const materias = await Materia.find({ user: req.user.userId });
-    console.log(`[materiaController] - ${materias.length} matérias encontradas. Enviando resposta.`);
     res.json(materias);
   } catch (error) {
-    console.error('[materiaController] - ERRO ao buscar matérias:', error);
-    res.status(500).json({ message: 'Erro no servidor' });
+    res.status(500).json({ message: 'Erro no servidor ao buscar matérias.' });
   }
 };
 
-// Obter uma matéria específica
 const getMateriaById = async (req, res) => {
   try {
     const materia = await Materia.findOne({ _id: req.params.id, user: req.user.userId });
-    if (!materia) {
-      return res.status(404).json({ message: 'Matéria não encontrada' });
-    }
+    if (!materia) return res.status(404).json({ message: 'Matéria não encontrada.' });
     res.json(materia);
   } catch (error) {
-    res.status(500).json({ message: 'Erro no servidor' });
+    res.status(500).json({ message: 'Erro no servidor ao buscar matéria específica.' });
   }
 };
 
-// Adicionar ou remover uma falta
-const updateFaltas = async (req, res) => {
+const addFalta = async (req, res) => {
   try {
-    const { action } = req.body;
+    const { date } = req.body;
     const materia = await Materia.findOne({ _id: req.params.id, user: req.user.userId });
-
-    if (!materia) {
-      return res.status(404).json({ message: 'Matéria não encontrada' });
-    }
-
-    if (action === 'add') {
-      materia.faltas += 1;
-    } else if (action === 'remove' && materia.faltas > 0) {
-      materia.faltas -= 1;
-    }
-
+    if (!materia) return res.status(404).json({ message: 'Matéria não encontrada.' });
+    
+    materia.faltas.push({ date });
     await materia.save();
     res.json(materia);
   } catch (error) {
-    res.status(500).json({ message: 'Erro ao atualizar faltas' });
+    res.status(500).json({ message: 'Erro ao adicionar falta.' });
   }
 };
 
-// Excluir uma matéria
+const removeFalta = async (req, res) => {
+  try {
+    const materia = await Materia.findOne({ _id: req.params.id, user: req.user.userId });
+    if (!materia) return res.status(404).json({ message: 'Matéria não encontrada.' });
+
+    materia.faltas.pull({ _id: req.params.faltaId });
+    await materia.save();
+    res.json(materia);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao remover falta.' });
+  }
+};
+
 const deleteMateria = async (req, res) => {
   try {
     const materia = await Materia.findOneAndDelete({ _id: req.params.id, user: req.user.userId });
-    if (!materia) {
-      return res.status(404).json({ message: 'Matéria não encontrada' });
-    }
-    res.json({ message: 'Matéria excluída com sucesso' });
+    if (!materia) return res.status(404).json({ message: 'Matéria não encontrada.' });
+    res.json({ message: 'Matéria excluída com sucesso.' });
   } catch (error) {
-    res.status(500).json({ message: 'Erro ao excluir matéria' });
+    res.status(500).json({ message: 'Erro ao excluir matéria.' });
   }
 };
 
-// Exporta todas as funções de uma vez no final
 module.exports = {
   createMateria,
+  addFalta,
+  removeFalta,
   getMaterias,
   getMateriaById,
-  updateFaltas,
-  deleteMateria
+  deleteMateria,
 };

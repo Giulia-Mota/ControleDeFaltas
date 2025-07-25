@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import api from '../api/axiosConfig'; // ALTERAÇÃO IMPORTANTE
+import api from '../api/axiosConfig';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
@@ -16,9 +16,9 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); // Limpa erros anteriores
+    setError('');
     try {
-      const response = await api.post('/auth/login', formData); // USA O 'api'
+      const response = await api.post('/auth/login', formData);
       localStorage.setItem('token', response.data.token);
       navigate('/dashboard');
     } catch (err) {
@@ -29,8 +29,10 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
-      <div className="p-8 max-w-md w-full bg-[#F5F5F5] rounded-2xl shadow-2xl">
-        <h2 className="text-4xl font-bold mb-8 text-center text-gray-800">Login</h2>
+      {/* CARD AUMENTADO: padding p-10 e max-w-lg */}
+      <div className="p-10 max-w-lg w-full bg-[#F5F5F5] rounded-2xl shadow-2xl">
+        {/* FONTE DO TÍTULO AUMENTADA: text-5xl */}
+        <h2 className="text-5xl font-bold mb-8 text-center text-gray-800">Login</h2>
         <form onSubmit={handleSubmit}>
           {error && <p className="text-red-600 text-center mb-4">{error}</p>}
           <div className="mb-6">
@@ -63,16 +65,18 @@ const Login = () => {
               required
             />
           </div>
+          {/* COR DO BOTÃO ALTERADA */}
           <button
             type="submit"
-            className="w-full bg-[#9370DB] text-white p-3 rounded-lg mt-4 hover:bg-[#8A2BE2] transition-colors duration-300 font-bold text-lg"
+            className="w-full bg-purple-800 text-white p-3 rounded-lg mt-4 hover:bg-purple-900 transition-colors duration-300 font-bold text-lg"
           >
             Entrar
           </button>
         </form>
         <p className="text-center text-gray-600 mt-6">
           Não tem uma conta?{' '}
-          <Link to="/register" className="text-purple-700 hover:underline font-semibold">
+          {/* COR DO LINK ALTERADA */}
+          <Link to="/register" className="text-purple-800 hover:underline font-semibold">
             Cadastre-se
           </Link>
         </p>

@@ -1,29 +1,23 @@
-const mongoose = require('mongoose');
+const express = require('express');
+const router = express.Router();
+const authMiddleware = require('../middlewares/authMiddleware');
+const {
+  createMateria,
+  getMaterias,
+  getMateriaById,
+  addFalta,
+  removeFalta,
+  deleteMateria
+} = require('../controllers/materiaController');
 
-const materiaSchema = new mongoose.Schema({
-  nome: {
-    type: String,
-    required: true,
-  },
-  professor: {
-    type: String,
-    required: true,
-  },
-  limiteFaltas: { // O único campo de faltas que precisamos salvar
-    type: Number,
-    required: true,
-    default: 0,
-  },
-  faltas: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-});
+// Rotas principais
+router.post('/', authMiddleware, createMateria);
+router.get('/', authMiddleware, getMaterias);
+router.get('/:id', authMiddleware, getMateriaById);
+router.delete('/:id', authMiddleware, deleteMateria);
 
-module.exports = mongoose.model('Materia', materiaSchema);
+// Rotas para gerir faltas com data
+router.post('/:id/faltas', authMiddleware, addFalta);
+router.delete('/:id/faltas/:faltaId', authMiddleware, removeFalta);
+
+module.exports = router;

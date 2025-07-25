@@ -2,7 +2,6 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Definimos as funções
 const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -18,21 +17,16 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-
     if (!user || !user.password) {
       return res.status(400).json({ message: 'Credenciais inválidas' });
     }
-
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
       return res.status(400).json({ message: 'Credenciais inválidas' });
     }
-
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });
   } catch (error) {
-    console.error('Erro no processo de login:', error);
     res.status(500).json({ message: 'Erro no servidor' });
   }
 };
@@ -45,12 +39,10 @@ const getMe = async (req, res) => {
     }
     res.json(user);
   } catch (error) {
-    console.error('Erro ao buscar dados do usuário:', error);
     res.status(500).json({ message: 'Erro no servidor' });
   }
 };
 
-// Exportamos todas as funções de uma vez
 module.exports = {
   register,
   login,
