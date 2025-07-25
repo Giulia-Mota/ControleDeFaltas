@@ -1,19 +1,15 @@
+// frontend/src/services/api.js - CÓDIGO CORRIGIDO
+
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
-});
+// A linha mais importante: Ele lê a URL da API das variáveis de ambiente.
+// Se não encontrar, ele usa 'http://localhost:5000' como um padrão para o ambiente local.
+const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.log("INTERCEPTOR: Erro detectado!", error.response); // Log para vermos o erro
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
+console.log(`A API está configurada para: ${baseURL}`); // Ajuda a depurar
+
+const api = axios.create({
+  baseURL: baseURL
+});
 
 export default api;
