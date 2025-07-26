@@ -19,34 +19,54 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Rota de teste para verificar se a API está no ar (ANTES da conexão com o banco)
+app.get('/', (req, res) => {
+  res.send('API do Controle de Faltas está funcionando!');
+});
+
+app.get('/test', (req, res) => {
+  res.json({ 
+    message: 'Teste de conexão',
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: process.env.PORT,
+      FRONTEND_URL: process.env.FRONTEND_URL,
+      MONGO_URI: process.env.MONGO_URI ? 'Definida' : 'Não definida'
+    }
+  });
+});
+
 // Conexão com o Banco de Dados MongoDB
 const mongoUri = process.env.MONGO_URI;
 
 if (!mongoUri) {
   console.error('ERRO FATAL: A variável de ambiente MONGO_URI não foi definida.');
-  process.exit(1);
+  console.error('Variáveis de ambiente disponíveis:', Object.keys(process.env));
+  // Não vamos mais encerrar o processo, apenas logar o erro
+  console.log('Continuando sem conexão com o banco...');
+} else {
+  mongoose.connect(mongoUri)
+    .then(() => console.log('Conexão com o MongoDB estabelecida com sucesso!'))
+    .catch(err => {
+      console.error('FALHA AO CONECTAR COM O MONGODB:', err);
+      console.log('Continuando sem conexão com o banco...');
+    });
 }
 
-mongoose.connect(mongoUri)
-  .then(() => console.log('Conexão com o MongoDB estabelecida com sucesso!'))
-  .catch(err => {
-    console.error('FALHA AO CONECTAR COM O MONGODB:', err);
-    process.exit(1);
-  });
-
 // --- SUAS ROTAS VÊM AQUI ---
-const authRoutes = require('./routes/auth');
-const faltaRoutes = require('./routes/falta');
-const materiaRoutes = require('./routes/materia');
+try {
+  const authRoutes = require('./routes/auth');
+  const faltaRoutes = require('./routes/falta');
+  const materiaRoutes = require('./routes/materia');
 
-app.use('/api/auth', authRoutes);
-app.use('/api/faltas', faltaRoutes);
-app.use('/api/materias', materiaRoutes);
-
-// Rota de teste para verificar se a API está no ar
-app.get('/', (req, res) => {
-  res.send('API do Controle de Faltas está funcionando!');
-});
+  app.use('/api/auth', authRoutes);
+  app.use('/api/faltas', faltaRoutes);
+  app.use('/api/materias', materiaRoutes);
+  
+  console.log('Rotas carregadas com sucesso!');
+} catch (error) {
+  console.error('Erro ao carregar rotas:', error);
+}
 
 // --- FIM DAS ROTAS ---
 
@@ -54,4 +74,5 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`URL do frontend configurada: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
 });
