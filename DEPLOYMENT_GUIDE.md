@@ -22,8 +22,10 @@ PORT=5000
 Configure a seguinte variável no seu projeto frontend no Render:
 
 ```
-REACT_APP_API_URL=https://seu-backend-render.onrender.com/api
+REACT_APP_API_URL=https://seu-backend-render.onrender.com
 ```
+
+**IMPORTANTE**: Não inclua `/api` no final da URL. O código adiciona automaticamente.
 
 ### 2. Configurações do Build (Frontend)
 - **Build Command**: `npm install && npm run build`
@@ -38,7 +40,7 @@ REACT_APP_API_URL=https://seu-backend-render.onrender.com/api
 
 ### Frontend:
 1. Conecte seu repositório GitHub ao Render
-2. Configure a variável `REACT_APP_API_URL` com a URL do seu backend
+2. Configure a variável `REACT_APP_API_URL` com a URL do seu backend (sem /api)
 3. Deploy automático será feito
 
 ## URLs Exemplo:
@@ -52,5 +54,5 @@ REACT_APP_API_URL=https://seu-backend-render.onrender.com/api
 
 ## Troubleshooting:
 - Se der erro de CORS: verifique se `FRONTEND_URL` está correto no backend
-- Se der erro de conexão: verifique se `REACT_APP_API_URL` está correto no frontend
+- Se der erro de conexão: verifique se `REACT_APP_API_URL` está correto no frontend (sem /api)
 - Se der erro de banco: verifique se `MONGO_URI` está correto 
