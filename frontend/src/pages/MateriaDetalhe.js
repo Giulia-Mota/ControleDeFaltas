@@ -76,8 +76,8 @@ const MateriaDetalhe = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl bg-[#F5F5F5] p-8 rounded-2xl shadow-2xl text-center">
-          <p className="text-xl text-gray-700">Carregando matéria...</p>
+        <div className="w-full max-w-lg bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl text-center">
+          <p className="text-lg text-gray-700">Carregando matéria...</p>
         </div>
       </div>
     );
@@ -97,61 +97,61 @@ const MateriaDetalhe = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-[#F5F5F5] p-8 rounded-2xl shadow-2xl">
+      <div className="w-full max-w-lg bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl">
         {materia && (
           <>
-            <header className="flex flex-wrap items-center justify-between border-b border-gray-300 pb-4 mb-6">
+            <header className="flex flex-wrap items-center justify-between border-b border-gray-300 pb-4 mb-4">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-800">{materia.nome}</h1>
-                <p className="text-lg text-gray-600 mt-1">Professor(a): {materia.professor}</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-800">{materia.nome}</h1>
+                <p className="text-base text-gray-600 mt-1">Professor(a): {materia.professor}</p>
                 {/* AQUI ESTÁ A CORREÇÃO: Mostra a carga horária apenas se ela existir */}
                 {materia.cargaHoraria && (
-                  <p className="text-sm text-gray-500 mt-2">Carga Horária: {materia.cargaHoraria} horas</p>
+                  <p className="text-xs text-gray-500 mt-2">Carga Horária: {materia.cargaHoraria} horas</p>
                 )}
               </div>
-              <button onClick={() => navigate('/dashboard')} className="bg-gray-600 text-white font-bold py-2 px-5 rounded-lg mt-4 md:mt-0">
+              <button onClick={() => navigate('/dashboard')} className="bg-gray-600 text-white font-bold py-2 px-4 rounded-lg mt-3 md:mt-0 text-sm">
                 Voltar
               </button>
             </header>
             <main>
               {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4">{error}</p>}
               
-              <div className="bg-white p-6 rounded-lg shadow-inner mb-6">
+              <div className="bg-white p-4 rounded-lg shadow-inner mb-4">
                 <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-xl font-semibold text-gray-700">Progresso de Faltas</h2>
+                  <h2 className="text-lg font-semibold text-gray-700">Progresso de Faltas</h2>
                   <span className="font-bold text-gray-800">{Math.floor(percentual)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-4">
-                  <div className={`${progressBarColor} h-4 rounded-full transition-all duration-500`} style={{ width: `${percentualParaBarra}%` }}></div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className={`${progressBarColor} h-3 rounded-full transition-all duration-500`} style={{ width: `${percentualParaBarra}%` }}></div>
                 </div>
-                <p className="text-center text-2xl font-bold text-purple-800 mt-2">
+                <p className="text-center text-xl font-bold text-purple-800 mt-2">
                   {faltasCount} / {limiteFaltas}
                   <span className="text-sm font-normal text-gray-500"> Faltas (dias)</span>
                 </p>
               </div>
 
-              <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-8 p-4 bg-gray-100 rounded-lg">
+              <div className="flex flex-col md:flex-row justify-center items-center gap-3 mb-6 p-3 bg-gray-100 rounded-lg">
                 <input 
                   type="date"
                   value={dataFalta}
                   onChange={(e) => setDataFalta(e.target.value)}
-                  className="p-2 border border-gray-300 rounded-lg"
+                  className="p-2 border border-gray-300 rounded-lg text-sm"
                 />
-                <button onClick={handleAddFalta} className="bg-purple-800 text-white font-bold py-2 px-6 rounded-lg hover:bg-purple-900 transition-colors">
+                <button onClick={handleAddFalta} className="bg-purple-800 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-900 transition-colors text-sm">
                   + Adicionar Falta
                 </button>
               </div>
 
-              <div className="mt-8 border-t border-gray-300 pt-6">
-                <h3 className="text-xl font-semibold text-gray-700 mb-4">Datas das Faltas</h3>
+              <div className="mt-6 border-t border-gray-300 pt-4">
+                <h3 className="text-lg font-semibold text-gray-700 mb-3">Datas das Faltas</h3>
                 {faltasCount > 0 ? (
-                  <ul className={`space-y-3 ${faltasCount > 3 ? 'max-h-48 overflow-y-auto pr-2' : ''}`}>
+                  <ul className={`space-y-2 ${faltasCount > 3 ? 'max-h-40 overflow-y-auto pr-2' : ''}`}>
                     {faltasOrdenadas.map((falta) => (
-                      <li key={falta._id} className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
-                        <span className="text-lg font-medium text-gray-700">{new Date(falta.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
+                      <li key={falta._id} className="flex justify-between items-center bg-white p-2 rounded-lg shadow-sm">
+                        <span className="text-base font-medium text-gray-700">{new Date(falta.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
                         <button 
                           onClick={() => handleRemoveFalta(falta._id)} 
-                          className="bg-custom-red text-white font-bold py-1 px-3 rounded-md hover:bg-custom-red-hover transition-colors text-base"
+                          className="bg-custom-red text-white font-bold py-1 px-2 rounded-md hover:bg-custom-red-hover transition-colors text-xs"
                         >
                           Remover
                         </button>
@@ -163,8 +163,8 @@ const MateriaDetalhe = () => {
                 )}
               </div>
               
-              <div className="mt-8 border-t border-gray-300 pt-6 text-center">
-                <button onClick={handleDelete} className="bg-custom-red text-white font-bold py-2 px-6 rounded-lg hover:bg-custom-red-hover transition-colors">
+              <div className="mt-6 border-t border-gray-300 pt-4 text-center">
+                <button onClick={handleDelete} className="bg-custom-red text-white font-bold py-2 px-4 rounded-lg hover:bg-custom-red-hover transition-colors text-sm">
                   Excluir Matéria
                 </button>
               </div>
