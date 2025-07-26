@@ -6,6 +6,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 
@@ -94,6 +95,15 @@ try {
 }
 
 // --- FIM DAS ROTAS ---
+
+// Servir arquivos estáticos do frontend (React build)
+const buildPath = path.join(__dirname, '../../frontend/public');
+app.use(express.static(buildPath));
+
+// Fallback para SPA: serve index.html para qualquer rota que não seja API
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(buildPath, 'index.html'));
+});
 
 // Inicialização do Servidor
 const PORT = process.env.PORT || 5000;

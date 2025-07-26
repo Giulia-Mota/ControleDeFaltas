@@ -23,11 +23,11 @@ const Register = () => {
       navigate('/login');
     } catch (err) {
       console.error('Erro de registro:', err);
-      if (err.response && err.response.data.error && err.response.data.error.code === 11000) {
-        setError('Este email ou nome de usuário já está em uso.');
-      } else {
-        setError('Erro ao registrar. Verifique os dados e tente novamente.');
+      let msg = 'Erro ao registrar. Verifique os dados e tente novamente.';
+      if (err.response && err.response.data && err.response.data.message) {
+        msg = err.response.data.message;
       }
+      setError(msg);
     }
   };
 

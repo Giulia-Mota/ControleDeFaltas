@@ -9,7 +9,16 @@ const register = async (req, res) => {
     await user.save();
     res.status(201).json({ message: 'Usuário registrado com sucesso' });
   } catch (error) {
-    res.status(400).json({ message: 'Erro ao registrar usuário', error });
+    // Verifica erro de duplicidade (usuário ou email já existe)
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      let msg = '';
+      if (field === 'username') msg = 'Nome de usuário já existe.';
+      else if (field === 'email') msg = 'Email já está em uso.';
+      else msg = 'Usuário ou email já cadastrado.';
+      return res.status(400).json({ message: msg });
+    }
+    res.status(400).json({ message: 'Erro ao registrar usuário', error: error.message });
   }
 };
 

@@ -23,7 +23,11 @@ const Login = () => {
       navigate('/dashboard');
     } catch (err) {
       console.error('Erro de login:', err);
-      setError('Credenciais inválidas. Por favor, tente novamente.');
+      let msg = 'Erro ao fazer login. Tente novamente.';
+      if (err.response && err.response.data && err.response.data.message) {
+        msg = err.response.data.message;
+      }
+      setError(msg);
     }
   };
 
