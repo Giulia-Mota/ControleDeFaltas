@@ -1,7 +1,7 @@
 // frontend/src/pages/MateriaDetalhe.js - APENAS A URL DA API FOI ALTERADA
 
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axiosConfig';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../App.css';
 
@@ -13,21 +13,13 @@ const MateriaDetalhe = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // ADICIONADO: Lê a URL da API da variável de ambiente
-    const API_URL = process.env.REACT_APP_API_URL;
-
     useEffect(() => {
         const fetchDetalhes = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const config = { headers: { 'x-auth-token': token } };
-                
-                // ALTERADO: Usa a variável API_URL em vez de 'localhost'
-                const resMateria = await axios.get(`${API_URL}/api/materia/${id}`, config);
+                const resMateria = await api.get(`/materias/${id}`);
                 setMateria(resMateria.data);
 
-                // ALTERADO: Usa a variável API_URL em vez de 'localhost'
-                const resFaltas = await axios.get(`${API_URL}/api/falta/${id}`, config);
+                const resFaltas = await api.get(`/faltas/${id}`);
                 setFaltas(resFaltas.data);
 
             } catch (err) {
@@ -38,15 +30,11 @@ const MateriaDetalhe = () => {
             }
         };
         fetchDetalhes();
-    }, [id, API_URL]);
+    }, [id]);
 
     const adicionarFalta = async () => {
         try {
-            const token = localStorage.getItem('token');
-            // ALTERADO: Usa a variável API_URL em vez de 'localhost'
-            const res = await axios.post(`${API_URL}/api/falta`, { materiaId: id, data: new Date() }, {
-                headers: { 'x-auth-token': token }
-            });
+            const res = await api.post('/faltas', { materiaId: id, data: new Date() });
             setFaltas([...faltas, res.data]);
             // Atualizar contagem de faltas na matéria
             setMateria(prev => ({ ...prev, faltas: prev.faltas + 1 }));
@@ -58,11 +46,7 @@ const MateriaDetalhe = () => {
     const deletarMateria = async () => {
         if (window.confirm('Tem a certeza que quer apagar esta matéria e todas as suas faltas?')) {
             try {
-                const token = localStorage.getItem('token');
-                // ALTERADO: Usa a variável API_URL em vez de 'localhost'
-                await axios.delete(`${API_URL}/api/materia/${id}`, {
-                    headers: { 'x-auth-token': token }
-                });
+                await api.delete(`/materias/${id}`);
                 navigate('/dashboard');
             } catch (err) {
                 console.error('Erro ao apagar matéria', err);

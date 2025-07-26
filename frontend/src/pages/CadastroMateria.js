@@ -1,7 +1,7 @@
 // frontend/src/pages/CadastroMateria.js - APENAS A URL DA API FOI ALTERADA
 
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../api/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
 
@@ -13,19 +13,12 @@ const CadastroMateria = () => {
     });
     const navigate = useNavigate();
 
-    // ADICIONADO: Lê a URL da API da variável de ambiente
-    const API_URL = process.env.REACT_APP_API_URL;
-
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const onSubmit = async e => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            // ALTERADO: Usa a variável API_URL em vez de 'localhost'
-            await axios.post(`${API_URL}/api/materia`, formData, {
-                headers: { 'x-auth-token': token }
-            });
+            await api.post('/materias', formData);
             navigate('/dashboard');
         } catch (err) {
             console.error(err.response.data);

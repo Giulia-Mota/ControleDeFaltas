@@ -1,8 +1,8 @@
 // frontend/src/pages/Login/Login.js - APENAS A URL DA API FOI ALTERADA
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
+import api from '../api/axiosConfig';
 import '../App.css';
 
 const Login = () => {
