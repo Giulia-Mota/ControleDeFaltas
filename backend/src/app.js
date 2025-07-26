@@ -97,7 +97,7 @@ try {
 // --- FIM DAS ROTAS ---
 
 // Servir arquivos estáticos do frontend (React build)
-const buildPath = path.join(__dirname, '../../frontend/public');
+const buildPath = path.join(__dirname, '../../frontend/build');
 app.use(express.static(buildPath));
 
 // Fallback para SPA: serve index.html para qualquer rota que não seja API
