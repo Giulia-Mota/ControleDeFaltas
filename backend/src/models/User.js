@@ -31,4 +31,5 @@ UserSchema.pre('save', async function(next) {
   next();
 });
 
-module.exports = mongoose.model('User', UserSchema);
+// Evita o erro de recompilação do modelo
+module.exports = mongoose.models.User || mongoose.model('User', UserSchema);

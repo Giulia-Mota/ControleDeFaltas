@@ -32,4 +32,5 @@ const materiaSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Materia', materiaSchema);
+// Evita o erro de recompilação do modelo
+module.exports = mongoose.models.Materia || mongoose.model('Materia', materiaSchema);
