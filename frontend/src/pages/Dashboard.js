@@ -20,16 +20,31 @@ const Dashboard = () => {
           return;
         }
 
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        const [userResponse, materiasResponse] = await Promise.all([
-          api.get('/auth/me', config),
-          api.get('/materias', config)
-        ]);
+        // Verificar se o token é válido primeiro
+        try {
+          const userResponse = await api.get('/auth/me', {
+            headers: { 'x-auth-token': token }
+          });
+          setUser(userResponse.data);
+        } catch (authError) {
+          console.error('Token inválido:', authError);
+          localStorage.removeItem('token');
+          navigate('/login');
+          return;
+        }
 
-        setUser(userResponse.data);
-        setMaterias(materiasResponse.data);
+        // Se chegou até aqui, o token é válido, então buscar matérias
+        try {
+          const materiasResponse = await api.get('/materias', {
+            headers: { 'x-auth-token': token }
+          });
+          setMaterias(materiasResponse.data);
+        } catch (materiasError) {
+          console.error('Erro ao buscar matérias:', materiasError);
+          setError('Não foi possível carregar as matérias.');
+        }
       } catch (err) {
-        console.error('Erro ao buscar dados do dashboard:', err);
+        console.error('Erro geral no dashboard:', err);
         setError('Não foi possível carregar os dados.');
       } finally {
         setIsLoading(false);
@@ -89,7 +104,6 @@ const Dashboard = () => {
 
                     <div className="mt-3 pt-3 border-t border-gray-200">
                       <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
-                        {/* AQUI ESTÁ A CORREÇÃO: Texto alterado e percentual adicionado */}
                         <span>Progresso de Faltas ({Math.floor(percentual)}%)</span>
                         <span>{faltasCount} / {limiteFaltas}</span>
                       </div>
