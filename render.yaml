@@ -1,0 +1,32 @@
+services:
+  # Backend API
+  - type: web
+    name: controledefaltas-api
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: https://minhasfaltas.onrender.com
+
+  # Frontend
+  - type: web
+    name: minhasfaltas
+    env: static
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://controledefaltas-api.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html 
