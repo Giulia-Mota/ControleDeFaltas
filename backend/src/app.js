@@ -14,7 +14,7 @@ app.use(express.json());
 
 // Configuração de CORS: Permite que apenas o seu frontend (definido na variável de ambiente) acesse a API.
 const corsOptions = {
-  origin: process.env.FRONTEND_URL, // Esta URL virá do Render
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
@@ -34,14 +34,18 @@ mongoose.connect(mongoUri)
     process.exit(1);
   });
 
-// --- ROTAS DA SUA APLICAÇÃO ---
-// Suas rotas devem vir aqui. Exemplo:
-// const userRoutes = require('./routes/userRoutes');
-// app.use('/api/users', userRoutes);
+// --- SUAS ROTAS VÊM AQUI ---
+const authRoutes = require('./routes/auth');
+const faltaRoutes = require('./routes/falta');
+const materiaRoutes = require('./routes/materia');
+
+app.use('/api/auth', authRoutes);
+app.use('/api/faltas', faltaRoutes);
+app.use('/api/materias', materiaRoutes);
 
 // Rota de teste para verificar se a API está no ar
-app.get('/api', (req, res) => {
-  res.send('A API está no ar e funcionando!');
+app.get('/', (req, res) => {
+  res.send('API do Controle de Faltas está funcionando!');
 });
 
 // --- FIM DAS ROTAS ---
