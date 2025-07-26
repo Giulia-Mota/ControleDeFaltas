@@ -1,7 +1,7 @@
 // frontend/src/pages/MateriaDetalhe.js - APENAS A URL DA API FOI ALTERADA
 
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api/axiosConfig'; 
 import { useParams, useNavigate } from 'react-router-dom';
 import '../App.css';
 

@@ -1,7 +1,7 @@
 // frontend/src/pages/CadastroMateria.js - APENAS A URL DA API FOI ALTERADA
 
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../api/axiosConfig'; 
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
 
