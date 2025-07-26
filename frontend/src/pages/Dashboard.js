@@ -85,35 +85,37 @@ const Dashboard = () => {
           {error ? (
             <p className="text-red-500 bg-red-100 p-3 rounded-md">{error}</p>
           ) : materias.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {materias.map(materia => {
-                const faltasCount = materia.faltas.length;
-                const limiteFaltas = materia.limiteFaltas;
-                const percentual = limiteFaltas > 0 ? (faltasCount / limiteFaltas) * 100 : 0;
-                const percentualParaBarra = Math.min(percentual, 100);
-                let progressBarColor = 'bg-teal-500';
-                if (percentual >= 75) { progressBarColor = 'bg-custom-red'; } 
-                else if (percentual >= 50) { progressBarColor = 'bg-yellow-500'; }
+            <div className="max-h-[60vh] overflow-y-auto pr-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {materias.map(materia => {
+                  const faltasCount = materia.faltas.length;
+                  const limiteFaltas = materia.limiteFaltas;
+                  const percentual = limiteFaltas > 0 ? (faltasCount / limiteFaltas) * 100 : 0;
+                  const percentualParaBarra = Math.min(percentual, 100);
+                  let progressBarColor = 'bg-teal-500';
+                  if (percentual >= 75) { progressBarColor = 'bg-custom-red'; } 
+                  else if (percentual >= 50) { progressBarColor = 'bg-yellow-500'; }
 
-                return (
-                  <Link to={`/materia/${materia._id}`} key={materia._id} className="block bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[140px]">
-                    <div>
-                      <h3 className="font-bold text-xl text-purple-800 truncate">{materia.nome}</h3>
-                      <p className="text-gray-600 mt-1 text-sm">Professor(a): {materia.professor}</p>
-                    </div>
+                  return (
+                    <Link to={`/materia/${materia._id}`} key={materia._id} className="block bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[140px]">
+                      <div>
+                        <h3 className="font-bold text-xl text-purple-800 truncate">{materia.nome}</h3>
+                        <p className="text-gray-600 mt-1 text-sm">Professor(a): {materia.professor}</p>
+                      </div>
 
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
-                        <span>Progresso de Faltas ({Math.floor(percentual)}%)</span>
-                        <span>{faltasCount} / {limiteFaltas}</span>
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
+                          <span>Progresso de Faltas ({Math.floor(percentual)}%)</span>
+                          <span>{faltasCount} / {limiteFaltas}</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className={`${progressBarColor} h-2 rounded-full`} style={{ width: `${percentualParaBarra}%` }}></div>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className={`${progressBarColor} h-2 rounded-full`} style={{ width: `${percentualParaBarra}%` }}></div>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           ) : (
             <p className="text-gray-500 text-center mt-4">Você ainda não cadastrou nenhuma matéria.</p>
