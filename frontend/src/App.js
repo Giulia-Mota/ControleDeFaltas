@@ -7,12 +7,14 @@ import CadastroMateria from './pages/CadastroMateria';
 import MateriaDetalhe from './pages/MateriaDetalhe';
 // import RelatorioGeral from './pages/RelatorioGeral'; // Linha removida
 import PrivateRoute from './components/PrivateRoute';
+import DebugInfo from './components/DebugInfo';
 import './App.css';
 
 function App() {
   return (
     <Router>
       <div className="App">
+        <DebugInfo />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
