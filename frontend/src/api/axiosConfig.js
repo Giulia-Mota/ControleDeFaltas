@@ -1,14 +1,15 @@
-// frontend/src/api/axiosConfig.js - VERSÃO FINAL E CORRETA
+// frontend/src/api/axiosConfig.js
 
 import axios from 'axios';
 
-// 1. Tenta ler a URL da API a partir da variável de ambiente do Render.
-// 2. Se não encontrar (porque está a rodar localmente), ele usa 'http://localhost:5000/api' como alternativa.
+// A magia acontece aqui:
+// 1. Procura a variável de ambiente REACT_APP_API_URL que vamos configurar no Render.
+// 2. Se não encontrar (porque está rodando localmente), usa o endereço do seu backend local como padrão.
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
 });
 
-// Adiciona um intercetor para incluir o token de autenticação em todos os pedidos
+// Intercetor para adicionar o token de autenticação em todas as requisições
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
