@@ -13,7 +13,7 @@ app.use(express.json());
 
 // Configuração do CORS
 const corsOptions = {
-  origin: process.env.FRONTEND_URL,
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
@@ -34,9 +34,13 @@ mongoose.connect(mongoUri)
   });
 
 // --- SUAS ROTAS VÊM AQUI ---
-// Exemplo:
-// const userRoutes = require('./routes/userRoutes');
-// app.use('/api/users', userRoutes);
+const authRoutes = require('./routes/auth');
+const faltaRoutes = require('./routes/falta');
+const materiaRoutes = require('./routes/materia');
+
+app.use('/api/auth', authRoutes);
+app.use('/api/faltas', faltaRoutes);
+app.use('/api/materias', materiaRoutes);
 
 app.get('/', (req, res) => {
   res.send('API do Controle de Faltas está funcionando!');
