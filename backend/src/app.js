@@ -36,6 +36,14 @@ app.get('/test', (req, res) => {
   });
 });
 
+// Rota para testar se as rotas da API estão funcionando
+app.get('/api-test', (req, res) => {
+  res.json({ 
+    message: 'Rota /api está funcionando',
+    routes: ['/api/auth/login', '/api/auth/register', '/api/materias', '/api/faltas']
+  });
+});
+
 // Conexão com o Banco de Dados MongoDB
 const mongoUri = process.env.MONGO_URI;
 
@@ -54,18 +62,35 @@ if (!mongoUri) {
 }
 
 // --- SUAS ROTAS VÊM AQUI ---
-try {
-  const authRoutes = require('./routes/auth');
-  const faltaRoutes = require('./routes/falta');
-  const materiaRoutes = require('./routes/materia');
+console.log('🔄 Iniciando carregamento das rotas...');
 
-  app.use('/api/auth', authRoutes);
-  app.use('/api/faltas', faltaRoutes);
-  app.use('/api/materias', materiaRoutes);
+try {
+  console.log('📁 Carregando auth routes...');
+  const authRoutes = require('./routes/auth');
+  console.log('✅ Auth routes carregadas');
   
-  console.log('Rotas carregadas com sucesso!');
+  console.log('📁 Carregando falta routes...');
+  const faltaRoutes = require('./routes/falta');
+  console.log('✅ Falta routes carregadas');
+  
+  console.log('📁 Carregando materia routes...');
+  const materiaRoutes = require('./routes/materia');
+  console.log('✅ Materia routes carregadas');
+
+  console.log('🔗 Registrando rotas...');
+  app.use('/api/auth', authRoutes);
+  console.log('✅ Rota /api/auth registrada');
+  
+  app.use('/api/faltas', faltaRoutes);
+  console.log('✅ Rota /api/faltas registrada');
+  
+  app.use('/api/materias', materiaRoutes);
+  console.log('✅ Rota /api/materias registrada');
+  
+  console.log('🎉 Todas as rotas carregadas com sucesso!');
 } catch (error) {
-  console.error('Erro ao carregar rotas:', error);
+  console.error('❌ Erro ao carregar rotas:', error);
+  console.error('Stack trace:', error.stack);
 }
 
 // --- FIM DAS ROTAS ---
@@ -73,6 +98,14 @@ try {
 // Inicialização do Servidor
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-  console.log(`URL do frontend configurada: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`🌐 URL do frontend configurada: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+  console.log(`📋 Rotas disponíveis:`);
+  console.log(`   - GET  /`);
+  console.log(`   - GET  /test`);
+  console.log(`   - GET  /api-test`);
+  console.log(`   - POST /api/auth/login`);
+  console.log(`   - POST /api/auth/register`);
+  console.log(`   - GET  /api/materias`);
+  console.log(`   - GET  /api/faltas`);
 });
