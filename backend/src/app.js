@@ -21,10 +21,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Rota de teste para verificar se a API está no ar (ANTES da conexão com o banco)
-app.get('/', (req, res) => {
-  res.send('API do Controle de Faltas está funcionando!');
-});
-
 app.get('/test', (req, res) => {
   res.json({ 
     message: 'Teste de conexão',
