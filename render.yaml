@@ -26,6 +26,10 @@ services:
     envVars:
       - key: REACT_APP_API_URL
         value: https://controledefaltas-api.onrender.com
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
     routes:
       - type: rewrite
         source: /*
