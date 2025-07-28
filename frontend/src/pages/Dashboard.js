@@ -89,7 +89,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl">
+      <div className="w-full bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl" style={{ maxWidth: '896px' }}>
         <header className="flex flex-wrap items-center justify-between border-b border-gray-300 pb-4 mb-4">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
             Bem-vindo, {user ? user.username : '...'}!
