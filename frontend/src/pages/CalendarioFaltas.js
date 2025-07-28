@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Calendar from 'react-calendar';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
@@ -15,7 +15,7 @@ const CalendarioFaltas = () => {
   const [tooltipData, setTooltipData] = useState({ show: false, content: [], x: 0, y: 0 });
   const navigate = useNavigate();
 
-  const fetchFaltasEMaterias = async () => {
+  const fetchFaltasEMaterias = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
@@ -38,11 +38,11 @@ const CalendarioFaltas = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchFaltasEMaterias();
-  }, [navigate]);
+  }, [fetchFaltasEMaterias]);
 
   const getTileContent = ({ date, view }) => {
     if (view !== 'month') return null;

@@ -21,7 +21,7 @@ services:
     name: minhasfaltas
     env: static
     plan: free
-    buildCommand: cd frontend && npm install && npm run build
+    buildCommand: cd frontend && npm install --production=false && npm run build
     staticPublishPath: frontend/build
     envVars:
       - key: REACT_APP_API_URL
