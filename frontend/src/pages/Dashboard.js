@@ -106,7 +106,7 @@ const Dashboard = () => {
             <p className="text-red-500 bg-red-100 p-3 rounded-md">{error}</p>
           ) : materias.length > 0 ? (
             <div className="max-h-[60vh] overflow-y-auto pr-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                 {materias.map(materia => {
                   const faltasCount = materia.faltas.length;
                   const limiteFaltas = materia.limiteFaltas;
@@ -117,7 +117,7 @@ const Dashboard = () => {
                   else if (percentual >= 50) { progressBarColor = 'bg-yellow-500'; }
 
                   return (
-                    <div key={materia._id} className="relative bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[140px]">
+                    <div key={materia._id} className="relative bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[140px] max-w-xs">
                       {/* Ícone de lixeira */}
                       <button
                         onClick={(e) => handleDeleteMateria(materia._id, materia.nome, e)}
