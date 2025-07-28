@@ -110,7 +110,7 @@ const CalendarioFaltas = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4">
-      <div className="w-full bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl" style={{ maxWidth: '896px' }}>
+      <div className="w-full bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl" style={{ maxWidth: '600px' }}>
         <div className="bg-purple-800 text-white p-6 rounded-2xl mb-6">
           <h2 className="text-3xl font-bold text-center">Calendário de Faltas</h2>
           <p className="text-center mt-2 opacity-90">Visualize e gerencie suas faltas por data</p>

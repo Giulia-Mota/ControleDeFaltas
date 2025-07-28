@@ -89,7 +89,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4">
-      <div className="w-full bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl" style={{ maxWidth: '896px' }}>
+      <div className="w-full bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl" style={{ maxWidth: '600px' }}>
         <header className="flex flex-wrap items-center justify-between border-b border-gray-300 pb-4 mb-4">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
             Bem-vindo, {user ? user.username : '...'}!
@@ -117,7 +117,7 @@ const Dashboard = () => {
                   else if (percentual >= 50) { progressBarColor = 'bg-yellow-500'; }
 
                   return (
-                    <div key={materia._id} className="relative bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[140px] max-w-xs">
+                    <div key={materia._id} className="relative bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[120px] max-w-xs">
                       {/* Ícone de lixeira */}
                       <button
                         onClick={(e) => handleDeleteMateria(materia._id, materia.nome, e)}
@@ -131,7 +131,7 @@ const Dashboard = () => {
                       
                       <Link to={`/materia/${materia._id}`} className="flex-1">
                         <div>
-                          <h3 className="font-bold text-xl text-purple-800 truncate">{materia.nome}</h3>
+                          <h3 className="font-bold text-lg text-purple-800 truncate">{materia.nome}</h3>
                           <p className="text-gray-600 mt-1 text-sm">Professor(a): {materia.professor}</p>
                         </div>
 

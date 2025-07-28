@@ -75,7 +75,7 @@ const CadastroMateria = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4">
-      <div className="w-full max-w-lg bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl">
+      <div className="w-full bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl" style={{ maxWidth: '600px' }}>
         <header className="flex items-center justify-between border-b border-gray-300 pb-4 mb-4">
             <h1 className="text-3xl font-bold text-gray-800">Cadastrar Matéria</h1>
             <Link to="/dashboard" className="bg-gray-600 text-white text-center font-bold py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors text-sm">

@@ -47,8 +47,8 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
-      <div className="p-6 max-w-md w-full bg-[#F5F5F5] rounded-2xl shadow-2xl">
-        <h2 className="text-4xl font-bold mb-6 text-center text-gray-800">Login</h2>
+      <div className="p-6 max-w-xs w-full bg-[#F5F5F5] rounded-2xl shadow-2xl">
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Login</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">

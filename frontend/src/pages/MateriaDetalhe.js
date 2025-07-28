@@ -83,7 +83,7 @@ const MateriaDetalhe = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4">
-      <div className="w-full bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl" style={{ maxWidth: '896px' }}>
+      <div className="w-full bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl" style={{ maxWidth: '600px' }}>
         {materia && (
           <>
             <header className="flex flex-wrap items-center justify-between border-b border-gray-300 pb-4 mb-4">
