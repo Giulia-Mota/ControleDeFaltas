@@ -57,4 +57,51 @@ exports.deletar = async (req, res) => {
   } catch (err) {
     return res.status(500).json({ message: 'Erro ao deletar falta.' });
   }
+};
+
+exports.listarTodasPorUsuario = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    
+    if (!userId) {
+      return res.status(401).json({ message: 'Usuário não autenticado.' });
+    }
+    
+    const faltasNovas = await Falta.find({ user: userId }).populate('materiaId', 'nome');
+    const Materia = require('../models/Materia');
+    const materiasComFaltas = await Materia.find({ user: userId });
+    
+    const faltasPorData = {};
+    
+    faltasNovas.forEach(falta => {
+      const dataStr = falta.data.toISOString().split('T')[0];
+      if (!faltasPorData[dataStr]) faltasPorData[dataStr] = [];
+      faltasPorData[dataStr].push({
+        materiaId: falta.materiaId._id,
+        materiaNome: falta.materiaId.nome,
+        faltaId: falta._id,
+        data: falta.data,
+        tipo: 'nova'
+      });
+    });
+    
+    materiasComFaltas.forEach(materia => {
+      materia.faltas.forEach(falta => {
+        const dataStr = falta.date.toISOString().split('T')[0];
+        if (!faltasPorData[dataStr]) faltasPorData[dataStr] = [];
+        faltasPorData[dataStr].push({
+          materiaId: materia._id,
+          materiaNome: materia.nome,
+          faltaId: falta._id,
+          data: falta.date,
+          tipo: 'antiga'
+        });
+      });
+    });
+    
+    return res.status(200).json(faltasPorData);
+  } catch (err) {
+    console.error('Erro ao buscar faltas:', err);
+    return res.status(500).json({ message: 'Erro ao buscar faltas do usuário.' });
+  }
 }; 

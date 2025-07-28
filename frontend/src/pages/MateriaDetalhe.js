@@ -59,20 +59,6 @@ const MateriaDetalhe = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (window.confirm('Tem certeza que deseja excluir esta matéria?')) {
-      try {
-        const token = localStorage.getItem('token');
-        await api.delete(`/materias/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        navigate('/dashboard');
-      } catch (err) {
-        setError('Não foi possível excluir a matéria.');
-      }
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center p-4">
@@ -163,11 +149,6 @@ const MateriaDetalhe = () => {
                 )}
               </div>
               
-              <div className="mt-6 border-t border-gray-300 pt-4 text-center">
-                <button onClick={handleDelete} className="bg-custom-red text-white font-bold py-2 px-4 rounded-lg hover:bg-custom-red-hover transition-colors text-sm">
-                  Excluir Matéria
-                </button>
-              </div>
             </main>
           </>
         )}
