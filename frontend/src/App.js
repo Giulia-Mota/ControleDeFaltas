@@ -5,9 +5,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CadastroMateria from './pages/CadastroMateria';
 import MateriaDetalhe from './pages/MateriaDetalhe';
-// import RelatorioGeral from './pages/RelatorioGeral'; // Linha removida
+import CalendarioFaltas from './pages/CalendarioFaltas';
 import PrivateRoute from './components/PrivateRoute';
-import './App.css';
 
 function App() {
   return (
@@ -19,7 +18,7 @@ function App() {
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/cadastrar-materia" element={<PrivateRoute><CadastroMateria /></PrivateRoute>} />
           <Route path="/materia/:id" element={<PrivateRoute><MateriaDetalhe /></PrivateRoute>} />
-          {/* A ROTA PARA O RELATÓRIO GERAL FOI REMOVIDA DAQUI */}
+          <Route path="/calendario-faltas" element={<PrivateRoute><CalendarioFaltas /></PrivateRoute>} />
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         </Routes>
       </div>

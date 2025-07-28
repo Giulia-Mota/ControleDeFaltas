@@ -4,15 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/*
-  SOLUÇÃO DEFINITIVA PARA O FUNDO
-  Aplica o fundo a todos os containers principais possíveis (html, body, #root)
-  para garantir que a imagem seja visível.
-*/
 html, body, #root, .App {
   margin: 0;
   padding: 0;
-  height: 100%; /* Garante que todos os containers ocupem a altura total */
+  height: 100%;
   width: 100%;
 }
 
@@ -22,14 +17,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  /* Cor de fundo para caso a imagem não carregue */
   background-color: #1a1a2e;
-
-  /* Carrega a imagem da pasta 'src' */
   background-image: url('./background.jpeg');
-
-  /* Estilos para a imagem de fundo */
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
