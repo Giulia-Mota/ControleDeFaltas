@@ -1,6 +1,96 @@
 import React, { useState, useEffect } from 'react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import api from '../api/axiosConfig';
 import { Link, useNavigate } from 'react-router-dom';
+
+// Componente SortableItem
+const SortableItem = ({ materia, handleDeleteMateria }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: materia._id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const faltasCount = materia.faltas.length;
+  const limiteFaltas = materia.limiteFaltas;
+  const percentual = limiteFaltas > 0 ? (faltasCount / limiteFaltas) * 100 : 0;
+  const percentualParaBarra = Math.min(percentual, 100);
+  let progressBarColor = 'bg-teal-500';
+  if (percentual >= 75) { progressBarColor = 'bg-custom-red'; } 
+  else if (percentual >= 50) { progressBarColor = 'bg-yellow-500'; }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`relative bg-white p-3 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[100px] max-w-xs cursor-grab active:cursor-grabbing ${
+        isDragging ? 'shadow-xl scale-105 rotate-2' : ''
+      }`}
+    >
+      {/* Ícone de arrastar */}
+      <div className="absolute top-1 left-1 text-gray-400">
+        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M7 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 2zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 14zm6-8a2 2 0 1 1-.001-4.001A2 2 0 0 1 13 6zm0 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 14z" />
+        </svg>
+      </div>
+
+      {/* Ícone de lixeira */}
+      <button
+        onClick={(e) => handleDeleteMateria(materia._id, materia.nome, e)}
+        className="absolute top-1 right-1 text-custom-red hover:text-custom-red-hover transition-colors p-1 rounded-full hover:bg-red-50"
+        title="Excluir matéria"
+      >
+        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+        </svg>
+      </button>
+      
+      <Link to={`/materia/${materia._id}`} className="flex-1">
+        <div>
+          <h3 className="font-bold text-base text-purple-800 truncate">{materia.nome}</h3>
+          <p className="text-gray-600 mt-1 text-xs">Professor(a): {materia.professor}</p>
+        </div>
+
+        <div className="mt-2 pt-2 border-t border-gray-200">
+          <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
+            <span>Progresso de Faltas ({Math.floor(percentual)}%)</span>
+            <span>{faltasCount} / {limiteFaltas}</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-1.5">
+            <div className={`${progressBarColor} h-1.5 rounded-full`} style={{ width: `${percentualParaBarra}%` }}></div>
+          </div>
+        </div>
+      </Link>
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -8,6 +98,13 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,6 +186,19 @@ const Dashboard = () => {
     }
   };
 
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      setMaterias((items) => {
+        const oldIndex = items.findIndex((item) => item._id === active.id);
+        const newIndex = items.findIndex((item) => item._id === over.id);
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center p-4">
@@ -119,49 +229,23 @@ const Dashboard = () => {
             <p className="text-red-500 bg-red-100 p-2 rounded-md text-sm">{error}</p>
           ) : materias.length > 0 ? (
             <div className="max-h-[50vh] overflow-y-auto pr-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {materias.map(materia => {
-                  const faltasCount = materia.faltas.length;
-                  const limiteFaltas = materia.limiteFaltas;
-                  const percentual = limiteFaltas > 0 ? (faltasCount / limiteFaltas) * 100 : 0;
-                  const percentualParaBarra = Math.min(percentual, 100);
-                  let progressBarColor = 'bg-teal-500';
-                  if (percentual >= 75) { progressBarColor = 'bg-custom-red'; } 
-                  else if (percentual >= 50) { progressBarColor = 'bg-yellow-500'; }
-
-                  return (
-                    <div key={materia._id} className="relative bg-white p-3 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[100px] max-w-xs">
-                      {/* Ícone de lixeira */}
-                      <button
-                        onClick={(e) => handleDeleteMateria(materia._id, materia.nome, e)}
-                        className="absolute top-1 right-1 text-custom-red hover:text-custom-red-hover transition-colors p-1 rounded-full hover:bg-red-50"
-                        title="Excluir matéria"
-                      >
-                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                      </button>
-                      
-                      <Link to={`/materia/${materia._id}`} className="flex-1">
-                        <div>
-                          <h3 className="font-bold text-base text-purple-800 truncate">{materia.nome}</h3>
-                          <p className="text-gray-600 mt-1 text-xs">Professor(a): {materia.professor}</p>
-                        </div>
-
-                        <div className="mt-2 pt-2 border-t border-gray-200">
-                          <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
-                            <span>Progresso de Faltas ({Math.floor(percentual)}%)</span>
-                            <span>{faltasCount} / {limiteFaltas}</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-1.5">
-                            <div className={`${progressBarColor} h-1.5 rounded-full`} style={{ width: `${percentualParaBarra}%` }}></div>
-                          </div>
-                        </div>
-                      </Link>
-                    </div>
-                  );
-                })}
-              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext items={materias.map(m => m._id)} strategy={rectSortingStrategy}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {materias.map((materia) => (
+                      <SortableItem
+                        key={materia._id}
+                        materia={materia}
+                        handleDeleteMateria={handleDeleteMateria}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             </div>
           ) : (
             <p className="text-gray-500 text-center mt-3 text-sm">Você ainda não cadastrou nenhuma matéria.</p>
