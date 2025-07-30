@@ -14,6 +14,10 @@ const materiaSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'A carga horária é obrigatória.'],
   },
+  aulasPorDia: {
+    type: Number,
+    required: [true, 'A quantidade de aulas por dia é obrigatória.'],
+  },
   limiteFaltas: {
     type: Number,
     required: [true, 'O limite de faltas é obrigatório.'],

@@ -5,6 +5,7 @@ const {
   createMateria,
   getMaterias,
   getMateriaById,
+  updateMateria,
   addFalta,
   removeFalta,
   deleteMateria
@@ -14,6 +15,7 @@ const {
 router.post('/', authMiddleware, createMateria);
 router.get('/', authMiddleware, getMaterias);
 router.get('/:id', authMiddleware, getMateriaById);
+router.put('/:id', authMiddleware, updateMateria);
 router.delete('/:id', authMiddleware, deleteMateria);
 
 // Rotas para gerir faltas com data

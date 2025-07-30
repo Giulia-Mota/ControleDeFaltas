@@ -53,6 +53,7 @@ const CadastroMateria = () => {
         limiteFaltas: limiteEmDias,
         // AQUI ESTÁ A ALTERAÇÃO: Enviamos a cargaHoraria para o backend
         cargaHoraria: parseInt(formData.cargaHoraria, 10),
+        aulasPorDia: parseInt(formData.aulasPorDia, 10),
       };
 
       await api.post('/materias', dadosParaEnviar, {

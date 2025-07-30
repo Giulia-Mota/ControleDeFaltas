@@ -3,13 +3,14 @@ const Materia = require('../models/Materia');
 const createMateria = async (req, res) => {
   try {
     // AQUI ESTÁ A CORREÇÃO: Garantimos que ele recebe a cargaHoraria do formulário
-    const { nome, professor, limiteFaltas, cargaHoraria } = req.body;
+    const { nome, professor, limiteFaltas, cargaHoraria, aulasPorDia } = req.body;
     const userId = req.user.userId;
 
     const materia = new Materia({
       nome,
       professor,
       cargaHoraria, // E a usa para criar a nova matéria
+      aulasPorDia,
       limiteFaltas,
       faltas: [],
       user: userId,
@@ -27,6 +28,11 @@ const createMateria = async (req, res) => {
 const getMaterias = async (req, res) => {
   try {
     const materias = await Materia.find({ user: req.user.userId });
+    console.log('Matérias retornadas pelo getMaterias:', materias.map(m => ({ 
+      id: m._id, 
+      nome: m.nome, 
+      aulasPorDia: m.aulasPorDia 
+    })));
     res.json(materias);
   } catch (error) {
     res.status(500).json({ message: 'Erro no servidor ao buscar matérias.' });
@@ -40,6 +46,51 @@ const getMateriaById = async (req, res) => {
     res.json(materia);
   } catch (error) {
     res.status(500).json({ message: 'Erro no servidor ao buscar matéria específica.' });
+  }
+};
+
+const updateMateria = async (req, res) => {
+  try {
+    const { nome, professor, limiteFaltas, cargaHoraria, aulasPorDia } = req.body;
+    const userId = req.user.userId;
+
+    console.log('Dados recebidos para atualização:', { nome, professor, limiteFaltas, cargaHoraria, aulasPorDia });
+    console.log('Tipo de aulasPorDia:', typeof aulasPorDia, 'Valor:', aulasPorDia);
+
+    // Usar findOneAndUpdate para garantir que todos os campos sejam atualizados
+    const materia = await Materia.findOneAndUpdate(
+      { _id: req.params.id, user: userId },
+      {
+        nome,
+        professor,
+        limiteFaltas,
+        cargaHoraria,
+        aulasPorDia
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!materia) return res.status(404).json({ message: 'Matéria não encontrada.' });
+
+    console.log('Matéria após atualização:', {
+      id: materia._id,
+      nome: materia.nome,
+      aulasPorDia: materia.aulasPorDia
+    });
+    
+    // Verificar se o campo está sendo incluído na resposta
+    const materiaResponse = materia.toObject();
+    console.log('Matéria na resposta (toObject):', {
+      id: materiaResponse._id,
+      nome: materiaResponse.nome,
+      aulasPorDia: materiaResponse.aulasPorDia,
+      todasAsChaves: Object.keys(materiaResponse)
+    });
+    
+    res.json(materia);
+  } catch (error) {
+    console.error("ERRO AO ATUALIZAR MATÉRIA:", error);
+    res.status(500).json({ message: 'Erro ao atualizar a matéria.', error: error.message });
   }
 };
 
@@ -86,5 +137,6 @@ module.exports = {
   removeFalta,
   getMaterias,
   getMateriaById,
+  updateMateria,
   deleteMateria,
 };

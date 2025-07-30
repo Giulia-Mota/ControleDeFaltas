@@ -8,7 +8,7 @@ const CalendarioFaltas = () => {
   const [faltasPorData, setFaltasPorData] = useState({});
   const [selectedDate, setSelectedDate] = useState(null);
   const [materias, setMaterias] = useState([]);
-  const [materiaSelecionada, setMateriaSelecionada] = useState('');
+  const [materiasSelecionadas, setMateriasSelecionadas] = useState([]);
   const [showAddFalta, setShowAddFalta] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -84,22 +84,49 @@ const CalendarioFaltas = () => {
   const handleDayClick = (date) => {
     setSelectedDate(date);
     setShowAddFalta(true);
-    setMateriaSelecionada('');
+    setMateriasSelecionadas([]);
+  };
+
+  const handleMateriaToggle = (materiaId) => {
+    setMateriasSelecionadas(prev => {
+      if (prev.includes(materiaId)) {
+        return prev.filter(id => id !== materiaId);
+      } else {
+        return [...prev, materiaId];
+      }
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (materiasSelecionadas.length === materias.length) {
+      setMateriasSelecionadas([]);
+    } else {
+      setMateriasSelecionadas(materias.map(m => m._id));
+    }
   };
 
   const handleAddFalta = async () => {
-    if (!materiaSelecionada) return;
+    if (materiasSelecionadas.length === 0) {
+      setError('Selecione pelo menos uma matéria.');
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
       
-      await api.post(`/materias/${materiaSelecionada}/faltas`, {
-        date: selectedDate.toISOString().split('T')[0]
-      }, {
-        headers: { 'x-auth-token': token }
-      });
+      // Adicionar faltas para todas as matérias selecionadas
+      const promises = materiasSelecionadas.map(materiaId =>
+        api.post(`/materias/${materiaId}/faltas`, {
+          date: selectedDate.toISOString().split('T')[0]
+        }, {
+          headers: { 'x-auth-token': token }
+        })
+      );
+
+      await Promise.all(promises);
       
       setShowAddFalta(false);
-      setMateriaSelecionada('');
+      setMateriasSelecionadas([]);
       
       await fetchFaltasEMaterias();
     } catch (err) {
@@ -153,26 +180,56 @@ const CalendarioFaltas = () => {
         {showAddFalta && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-4">
-              <h3 className="text-lg font-bold mb-3 text-gray-800">
-                Adicionar matéria que faltou em {selectedDate && selectedDate.toLocaleDateString('pt-BR')}
-              </h3>
-              <select
-                className="w-full border-2 border-gray-200 rounded-lg p-2 mb-3 focus:border-purple-500 focus:outline-none transition-colors text-sm"
-                value={materiaSelecionada}
-                onChange={e => setMateriaSelecionada(e.target.value)}
-              >
-                <option value="">Selecione a matéria</option>
-                {materias.map(m => (
-                  <option key={m._id} value={m._id}>{m.nome}</option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between border-b border-gray-300 pb-3 mb-3">
+                <h3 className="text-lg font-bold text-gray-800">
+                  Adicionar faltas em {selectedDate && selectedDate.toLocaleDateString('pt-BR')}
+                </h3>
+                <button onClick={() => setShowAddFalta(false)} className="text-gray-500 hover:text-gray-700">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-gray-700">Selecione as matérias:</span>
+                  <button
+                    onClick={handleSelectAll}
+                    className="text-xs text-purple-600 hover:text-purple-800 font-medium"
+                  >
+                    {materiasSelecionadas.length === materias.length ? 'Desmarcar todas' : 'Marcar todas'}
+                  </button>
+                </div>
+                
+                <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                  {materias.map(materia => (
+                    <label key={materia._id} className="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={materiasSelecionadas.includes(materia._id)}
+                        onChange={() => handleMateriaToggle(materia._id)}
+                        className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{materia.nome}</span>
+                    </label>
+                  ))}
+                </div>
+                
+                {materiasSelecionadas.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    {materiasSelecionadas.length} matéria{materiasSelecionadas.length > 1 ? 's' : ''} selecionada{materiasSelecionadas.length > 1 ? 's' : ''}
+                  </p>
+                )}
+              </div>
+
               <div className="flex gap-2">
                 <button
                   className="flex-1 bg-purple-800 text-white py-2 px-3 rounded-lg hover:bg-purple-900 transition-colors font-semibold disabled:opacity-50 text-sm"
                   onClick={handleAddFalta}
-                  disabled={!materiaSelecionada}
+                  disabled={materiasSelecionadas.length === 0}
                 >
-                  Adicionar
+                  Adicionar {materiasSelecionadas.length > 0 ? `(${materiasSelecionadas.length})` : ''}
                 </button>
                 <button
                   className="flex-1 bg-gray-300 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-400 transition-colors font-semibold text-sm"
