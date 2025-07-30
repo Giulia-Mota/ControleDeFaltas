@@ -95,7 +95,7 @@ const SortableItem = ({ materia, handleDeleteMateria, handleEditMateria }) => {
         </button>
       </div>
       
-      <Link to={`/materia/${materia._id}`} className="flex-1 touch-none">
+      <Link to={`/materia/${materia._id}`} className="flex-1">
         <div>
           <h3 className="font-bold text-base text-purple-800 truncate">{materia.nome}</h3>
           <p className="text-gray-600 mt-1 text-xs">Professor(a): {materia.professor}</p>
