@@ -95,9 +95,9 @@ const Dashboard = () => {
             Bem-vindo, {user ? user.username : '...'}!
           </h1>
           <div className="flex items-center gap-1 md:gap-2">
-            <Link to="/cadastrar-materia" className="bg-purple-800 text-white text-center font-bold py-1.5 px-2 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs">Adicionar Matéria</Link>
-            <Link to="/calendario-faltas" className="bg-purple-800 text-white text-center font-bold py-1.5 px-2 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs">Calendário de Faltas</Link>
-            <button onClick={handleLogout} className="bg-custom-red text-white text-center font-bold py-1.5 px-2 md:px-3 rounded-lg hover:bg-custom-red-hover transition-colors text-xs">Sair</button>
+            <Link to="/cadastrar-materia" className="bg-purple-800 text-white text-center font-bold py-1 px-2 md:py-1.5 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs">Adicionar Matéria</Link>
+            <Link to="/calendario-faltas" className="bg-purple-800 text-white text-center font-bold py-1 px-2 md:py-1.5 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs">Calendário de Faltas</Link>
+            <button onClick={handleLogout} className="bg-custom-red text-white text-center font-bold py-1 px-2 md:py-1.5 md:px-3 rounded-lg hover:bg-custom-red-hover transition-colors text-xs">Sair</button>
           </div>
         </header>
         <main>
