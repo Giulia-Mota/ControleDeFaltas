@@ -120,9 +120,7 @@ const Dashboard = () => {
           ) : materias.length > 0 ? (
             <div className="max-h-[50vh] overflow-y-auto pr-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {materias
-                  .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
-                  .map(materia => {
+                {materias.map(materia => {
                   const faltasCount = materia.faltas.length;
                   const limiteFaltas = materia.limiteFaltas;
                   const percentual = limiteFaltas > 0 ? (faltasCount / limiteFaltas) * 100 : 0;
