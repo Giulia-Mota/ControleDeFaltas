@@ -13,6 +13,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       setIsLoading(true);
       setError('');
+      
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -20,36 +21,47 @@ const Dashboard = () => {
           return;
         }
 
-        // Verificar se o token é válido primeiro
-        try {
-          const userResponse = await api.get('/auth/me', {
+        // Criar um timeout para evitar carregamento infinito
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 10000)
+        );
+
+        // Fazer as requisições em paralelo para otimizar
+        const fetchPromises = Promise.all([
+          api.get('/auth/me', {
             headers: { 'x-auth-token': token }
-          });
-          setUser(userResponse.data);
-        } catch (authError) {
-          console.error('Token inválido:', authError);
+          }),
+          api.get('/materias', {
+            headers: { 'x-auth-token': token }
+          })
+        ]);
+
+        // Race entre as requisições e o timeout
+        const [userResponse, materiasResponse] = await Promise.race([
+          fetchPromises,
+          timeoutPromise
+        ]);
+
+        setUser(userResponse.data);
+        setMaterias(materiasResponse.data);
+        
+      } catch (err) {
+        console.error('Erro no dashboard:', err);
+        
+        if (err.message === 'Timeout') {
+          setError('Tempo limite excedido. Verifique sua conexão.');
+        } else if (err.response?.status === 401) {
           localStorage.removeItem('token');
           navigate('/login');
           return;
+        } else {
+          setError('Não foi possível carregar os dados. Tente novamente.');
         }
-
-        // Se chegou até aqui, o token é válido, então buscar matérias
-        try {
-          const materiasResponse = await api.get('/materias', {
-            headers: { 'x-auth-token': token }
-          });
-          setMaterias(materiasResponse.data);
-        } catch (materiasError) {
-          console.error('Erro ao buscar matérias:', materiasError);
-          setError('Não foi possível carregar as matérias.');
-        }
-      } catch (err) {
-        console.error('Erro geral no dashboard:', err);
-        setError('Não foi possível carregar os dados.');
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchData();
   }, [navigate]);
 
@@ -81,6 +93,7 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen w-full flex items-center justify-center p-4">
         <div className="w-full max-w-sm bg-[#F5F5F5] p-4 rounded-2xl shadow-2xl text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-3"></div>
           <p className="text-base text-gray-700">Carregando dados...</p>
         </div>
       </div>
@@ -95,9 +108,9 @@ const Dashboard = () => {
             Bem-vindo, {user ? user.username : '...'}!
           </h1>
           <div className="flex items-center gap-1 md:gap-2">
-            <Link to="/cadastrar-materia" className="bg-purple-800 text-white text-center font-bold py-0.5 px-1.5 md:py-1.5 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs">Adicionar Matéria</Link>
-            <Link to="/calendario-faltas" className="bg-purple-800 text-white text-center font-bold py-0.5 px-1.5 md:py-1.5 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs">Calendário de Faltas</Link>
-            <button onClick={handleLogout} className="bg-custom-red text-white text-center font-bold py-0.5 px-1.5 md:py-1.5 md:px-3 rounded-lg hover:bg-custom-red-hover transition-colors text-xs">Sair</button>
+            <Link to="/cadastrar-materia" className="bg-purple-800 text-white text-center font-bold py-1 px-2 md:py-1.5 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs">Adicionar Matéria</Link>
+            <Link to="/calendario-faltas" className="bg-purple-800 text-white text-center font-bold py-1 px-2 md:py-1.5 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs">Calendário de Faltas</Link>
+            <button onClick={handleLogout} className="bg-custom-red text-white text-center font-bold py-1 px-2 md:py-1.5 md:px-3 rounded-lg hover:bg-custom-red-hover transition-colors text-xs">Sair</button>
           </div>
         </header>
         <main>
