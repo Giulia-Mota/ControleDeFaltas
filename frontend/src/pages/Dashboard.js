@@ -30,6 +30,7 @@ const SortableItem = ({ materia, handleDeleteMateria, handleEditMateria }) => {
     transform,
     transition,
     isDragging,
+    setActivatorNodeRef,
   } = useSortable({ id: materia._id });
 
   const style = {
@@ -49,14 +50,20 @@ const SortableItem = ({ materia, handleDeleteMateria, handleEditMateria }) => {
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
       className={`relative bg-white p-3 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[100px] max-w-xs touch-manipulation ${
         isDragging ? 'shadow-xl scale-105 rotate-2 z-50' : ''
       }`}
     >
-      {/* Ícone de arrastar */}
-      <div className="absolute top-1 left-1 text-gray-400 touch-none">
+      {/* Ícone de arrastar (handle) */}
+      <div
+        ref={setActivatorNodeRef}
+        {...attributes}
+        {...listeners}
+        className="absolute top-1 left-1 text-gray-400 touch-none cursor-grab active:cursor-grabbing select-none"
+        style={{ touchAction: 'none' }}
+        tabIndex={0}
+        aria-label="Arrastar matéria"
+      >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
           <path d="M7 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 2zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 14zm6-8a2 2 0 1 1-.001-4.001A2 2 0 0 1 13 6zm0 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 14z" />
         </svg>
@@ -315,9 +322,8 @@ const Dashboard = () => {
 
   const sensors = useSensors(
     useSensor(TouchSensor, {
-      // Configurações específicas para touch
       activationConstraint: {
-        delay: 250,
+        delay: 300,
         tolerance: 5,
       },
     }),
