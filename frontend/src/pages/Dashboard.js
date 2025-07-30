@@ -91,13 +91,13 @@ const Dashboard = () => {
     <div className="min-h-screen w-full flex items-center justify-center p-4">
       <div className="w-full bg-[#F5F5F5] p-4 rounded-2xl shadow-2xl" style={{ maxWidth: '600px' }}>
         <header className="flex items-center justify-between border-b border-gray-300 pb-3 mb-3">
-          <h1 className="text-xl md:text-2xl font-bold text-gray-800 flex-shrink-0">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-800">
             Bem-vindo, {user ? user.username : '...'}!
           </h1>
-          <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
-            <Link to="/cadastrar-materia" className="bg-purple-800 text-white text-center font-bold py-1.5 px-2 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs whitespace-nowrap">Adicionar Matéria</Link>
-            <Link to="/calendario-faltas" className="bg-purple-800 text-white text-center font-bold py-1.5 px-2 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs whitespace-nowrap">Calendário de Faltas</Link>
-            <button onClick={handleLogout} className="bg-custom-red text-white text-center font-bold py-1.5 px-2 md:px-3 rounded-lg hover:bg-custom-red-hover transition-colors text-xs whitespace-nowrap">Sair</button>
+          <div className="flex items-center gap-1 md:gap-2">
+            <Link to="/cadastrar-materia" className="bg-purple-800 text-white text-center font-bold py-1.5 px-2 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs">Adicionar Matéria</Link>
+            <Link to="/calendario-faltas" className="bg-purple-800 text-white text-center font-bold py-1.5 px-2 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs">Calendário de Faltas</Link>
+            <button onClick={handleLogout} className="bg-custom-red text-white text-center font-bold py-1.5 px-2 md:px-3 rounded-lg hover:bg-custom-red-hover transition-colors text-xs">Sair</button>
           </div>
         </header>
         <main>
