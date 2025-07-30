@@ -27,6 +27,8 @@ const CalendarioFaltas = () => {
       const faltasResp = await api.get('/faltas/usuario', {
         headers: { 'x-auth-token': token }
       });
+      console.log('=== DADOS DE FALTAS RECEBIDOS ===');
+      console.log('Faltas por data:', faltasResp.data);
       setFaltasPorData(faltasResp.data);
       const materiasResp = await api.get('/materias', {
         headers: { 'x-auth-token': token }
@@ -82,9 +84,21 @@ const CalendarioFaltas = () => {
   };
 
   const handleDayClick = (date) => {
-    setSelectedDate(date);
-    setShowAddFalta(true);
-    setMateriasSelecionadas([]);
+    const dateStr = date.toISOString().split('T')[0];
+    
+    // Se já tem faltas nesta data, mostrar modal para remover
+    if (faltasPorData[dateStr]) {
+      setSelectedDate(date);
+      setShowAddFalta(true);
+      // Pré-selecionar as matérias que já têm faltas nesta data
+      const materiasComFalta = faltasPorData[dateStr].map(f => f.materiaId);
+      setMateriasSelecionadas(materiasComFalta);
+    } else {
+      // Se não tem faltas, adicionar faltas (comportamento original)
+      setSelectedDate(date);
+      setShowAddFalta(true);
+      setMateriasSelecionadas([]);
+    }
   };
 
   const handleMateriaToggle = (materiaId) => {
@@ -106,32 +120,111 @@ const CalendarioFaltas = () => {
   };
 
   const handleAddFalta = async () => {
-    if (materiasSelecionadas.length === 0) {
-      setError('Selecione pelo menos uma matéria.');
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    const temFaltasNaData = faltasPorData[dateStr];
+    
+    // Se não tem matérias selecionadas e não tinha faltas antes, mostrar aviso
+    if (materiasSelecionadas.length === 0 && !temFaltasNaData) {
+      setError('Selecione pelo menos uma matéria para adicionar faltas.');
       return;
     }
 
     try {
       const token = localStorage.getItem('token');
       
-      // Adicionar faltas para todas as matérias selecionadas
-      const promises = materiasSelecionadas.map(materiaId =>
-        api.post(`/materias/${materiaId}/faltas`, {
-          date: selectedDate.toISOString().split('T')[0]
-        }, {
-          headers: { 'x-auth-token': token }
-        })
-      );
+      console.log('=== DEBUG GERENCIAR FALTAS ===');
+      console.log('Data selecionada:', dateStr);
+      console.log('Matérias selecionadas:', materiasSelecionadas);
+      console.log('Faltas existentes na data:', temFaltasNaData);
+      
+      if (temFaltasNaData) {
+        console.log('=== EDITANDO FALTAS EXISTENTES ===');
+        
+        // Se não tem matérias selecionadas, remover todas as faltas
+        if (materiasSelecionadas.length === 0) {
+          console.log('=== REMOVENDO TODAS AS FALTAS ===');
+          const promises = temFaltasNaData.map(falta => {
+            console.log(`Removendo falta: ${falta.materiaId}/faltas/${falta.faltaId}`);
+            return api.delete(`/materias/${falta.materiaId}/faltas/${falta.faltaId}`, {
+              headers: { 'x-auth-token': token }
+            });
+          });
+          
+          await Promise.all(promises);
+          console.log('Todas as faltas removidas com sucesso');
+        } else {
+          // Remover faltas das matérias não selecionadas
+          const materiasParaRemover = temFaltasNaData.filter(f => !materiasSelecionadas.includes(f.materiaId));
+          console.log('Matérias para remover faltas:', materiasParaRemover);
+          
+          const promisesRemover = materiasParaRemover.map(falta => {
+            console.log(`Removendo falta: ${falta.materiaId}/faltas/${falta.faltaId}`);
+            return api.delete(`/materias/${falta.materiaId}/faltas/${falta.faltaId}`, {
+              headers: { 'x-auth-token': token }
+            });
+          });
 
-      await Promise.all(promises);
+          // Adicionar faltas das matérias selecionadas que não tinham
+          const materiasParaAdicionar = materiasSelecionadas.filter(materiaId => 
+            !temFaltasNaData.some(f => f.materiaId === materiaId)
+          );
+          console.log('Matérias para adicionar faltas:', materiasParaAdicionar);
+          
+          const promisesAdicionar = materiasParaAdicionar.map(materiaId => {
+            console.log(`Adicionando falta: ${materiaId}/faltas`);
+            return api.post(`/materias/${materiaId}/faltas`, {
+              date: dateStr
+            }, {
+              headers: { 'x-auth-token': token }
+            });
+          });
+
+          console.log('Executando operações...');
+          await Promise.all([...promisesRemover, ...promisesAdicionar]);
+          console.log('Operações concluídas com sucesso');
+        }
+        
+      } else {
+        console.log('=== ADICIONANDO NOVAS FALTAS ===');
+        
+        // Adicionar faltas para todas as matérias selecionadas
+        const promises = materiasSelecionadas.map(materiaId => {
+          console.log(`Adicionando falta: ${materiaId}/faltas`);
+          return api.post(`/materias/${materiaId}/faltas`, {
+            date: dateStr
+          }, {
+            headers: { 'x-auth-token': token }
+          });
+        });
+
+        console.log('Executando operações...');
+        await Promise.all(promises);
+        console.log('Operações concluídas com sucesso');
+      }
       
       setShowAddFalta(false);
       setMateriasSelecionadas([]);
       
+      console.log('Recarregando dados...');
       await fetchFaltasEMaterias();
+      console.log('Dados recarregados com sucesso');
+      
     } catch (err) {
-      console.error('Erro ao adicionar falta:', err);
-      setError('Erro ao adicionar falta.');
+      console.error('=== ERRO DETALHADO ===');
+      console.error('Erro ao gerenciar faltas:', err);
+      console.error('Response:', err.response);
+      console.error('Status:', err.response?.status);
+      console.error('Data:', err.response?.data);
+      
+      if (err.response?.status === 401) {
+        setError('Sessão expirada. Faça login novamente.');
+        localStorage.removeItem('token');
+        setTimeout(() => window.location.href = '/login', 2000);
+      } else if (err.response?.data?.message) {
+        setError(`Erro: ${err.response.data.message}`);
+      } else {
+        setError('Erro ao gerenciar faltas. Verifique sua conexão.');
+      }
     }
   };
 
@@ -182,7 +275,10 @@ const CalendarioFaltas = () => {
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-4">
               <div className="flex items-center justify-between border-b border-gray-300 pb-3 mb-3">
                 <h3 className="text-lg font-bold text-gray-800">
-                  Adicionar faltas em {selectedDate && selectedDate.toLocaleDateString('pt-BR')}
+                  {selectedDate && faltasPorData[selectedDate.toISOString().split('T')[0]] 
+                    ? `Editar faltas em ${selectedDate.toLocaleDateString('pt-BR')}`
+                    : `Adicionar faltas em ${selectedDate && selectedDate.toLocaleDateString('pt-BR')}`
+                  }
                 </h3>
                 <button onClick={() => setShowAddFalta(false)} className="text-gray-500 hover:text-gray-700">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -193,7 +289,12 @@ const CalendarioFaltas = () => {
 
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold text-gray-700">Selecione as matérias:</span>
+                  <span className="text-sm font-semibold text-gray-700">
+                    {selectedDate && faltasPorData[selectedDate.toISOString().split('T')[0]] 
+                      ? 'Selecione as matérias que faltou:'
+                      : 'Selecione as matérias:'
+                    }
+                  </span>
                   <button
                     onClick={handleSelectAll}
                     className="text-xs text-purple-600 hover:text-purple-800 font-medium"
@@ -203,22 +304,36 @@ const CalendarioFaltas = () => {
                 </div>
                 
                 <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2">
-                  {materias.map(materia => (
-                    <label key={materia._id} className="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={materiasSelecionadas.includes(materia._id)}
-                        onChange={() => handleMateriaToggle(materia._id)}
-                        className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{materia.nome}</span>
-                    </label>
-                  ))}
+                  {materias.map(materia => {
+                    const dateStr = selectedDate?.toISOString().split('T')[0];
+                    const temFalta = dateStr && faltasPorData[dateStr]?.some(f => f.materiaId === materia._id);
+                    
+                    return (
+                      <label key={materia._id} className="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={materiasSelecionadas.includes(materia._id)}
+                          onChange={() => handleMateriaToggle(materia._id)}
+                          className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">
+                          {materia.nome}
+                          {temFalta && <span className="text-xs text-gray-500 ml-1">(já marcada)</span>}
+                        </span>
+                      </label>
+                    );
+                  })}
                 </div>
                 
                 {materiasSelecionadas.length > 0 && (
                   <p className="text-xs text-gray-500 mt-2">
                     {materiasSelecionadas.length} matéria{materiasSelecionadas.length > 1 ? 's' : ''} selecionada{materiasSelecionadas.length > 1 ? 's' : ''}
+                  </p>
+                )}
+                
+                {selectedDate && faltasPorData[selectedDate.toISOString().split('T')[0]] && materiasSelecionadas.length === 0 && (
+                  <p className="text-xs text-red-500 mt-2">
+                    Desmarque todas as matérias para remover todas as faltas desta data.
                   </p>
                 )}
               </div>
@@ -227,9 +342,14 @@ const CalendarioFaltas = () => {
                 <button
                   className="flex-1 bg-purple-800 text-white py-2 px-3 rounded-lg hover:bg-purple-900 transition-colors font-semibold disabled:opacity-50 text-sm"
                   onClick={handleAddFalta}
-                  disabled={materiasSelecionadas.length === 0}
+                  disabled={materiasSelecionadas.length === 0 && !faltasPorData[selectedDate?.toISOString().split('T')[0]]}
                 >
-                  Adicionar {materiasSelecionadas.length > 0 ? `(${materiasSelecionadas.length})` : ''}
+                  {selectedDate && faltasPorData[selectedDate.toISOString().split('T')[0]] 
+                    ? materiasSelecionadas.length === 0 
+                      ? 'Remover todas'
+                      : `Salvar (${materiasSelecionadas.length})`
+                    : `Adicionar (${materiasSelecionadas.length})`
+                  }
                 </button>
                 <button
                   className="flex-1 bg-gray-300 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-400 transition-colors font-semibold text-sm"

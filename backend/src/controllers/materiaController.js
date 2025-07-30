@@ -100,10 +100,20 @@ const addFalta = async (req, res) => {
     const materia = await Materia.findOne({ _id: req.params.id, user: req.user.userId });
     if (!materia) return res.status(404).json({ message: 'Matéria não encontrada.' });
     
+    // Verificar se já existe uma falta para esta data
+    const faltaExistente = materia.faltas.find(falta => 
+      falta.date.toISOString().split('T')[0] === date
+    );
+    
+    if (faltaExistente) {
+      return res.status(400).json({ message: 'Já existe uma falta registrada para esta data.' });
+    }
+    
     materia.faltas.push({ date });
     await materia.save();
     res.json(materia);
   } catch (error) {
+    console.error('Erro ao adicionar falta:', error);
     res.status(500).json({ message: 'Erro ao adicionar falta.' });
   }
 };
