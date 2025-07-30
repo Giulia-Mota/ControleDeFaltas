@@ -53,6 +53,7 @@ const SortableItem = ({ materia, handleDeleteMateria, handleEditMateria }) => {
       className={`relative bg-white p-3 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[100px] max-w-xs touch-manipulation ${
         isDragging ? 'shadow-xl scale-105 rotate-2 z-50' : ''
       }`}
+      style={{ ...style, touchAction: 'pan-y' }} // Permite scroll vertical no mobile
     >
       {/* Ícone de arrastar (handle) */}
       <div
