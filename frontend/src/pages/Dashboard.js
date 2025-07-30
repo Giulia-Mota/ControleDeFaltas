@@ -80,8 +80,8 @@ const Dashboard = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center p-4">
-        <div className="w-full max-w-4xl bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl text-center">
-          <p className="text-lg text-gray-700">Carregando dados...</p>
+        <div className="w-full max-w-sm bg-[#F5F5F5] p-4 rounded-2xl shadow-2xl text-center">
+          <p className="text-base text-gray-700">Carregando dados...</p>
         </div>
       </div>
     );
@@ -89,24 +89,24 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4">
-      <div className="w-full bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl" style={{ maxWidth: '600px' }}>
-        <header className="flex flex-wrap items-center justify-between border-b border-gray-300 pb-4 mb-4">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+      <div className="w-full bg-[#F5F5F5] p-4 rounded-2xl shadow-2xl" style={{ maxWidth: '600px' }}>
+        <header className="flex items-center justify-between border-b border-gray-300 pb-3 mb-3">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-800 flex-shrink-0">
             Bem-vindo, {user ? user.username : '...'}!
           </h1>
-          <div className="flex items-center gap-3 mt-3 md:mt-0">
-            <Link to="/cadastrar-materia" className="bg-purple-800 text-white text-center font-bold py-2 px-4 rounded-lg hover:bg-purple-900 transition-colors text-sm">Adicionar Matéria</Link>
-            <Link to="/calendario-faltas" className="bg-purple-800 text-white text-center font-bold py-2 px-4 rounded-lg hover:bg-purple-900 transition-colors text-sm">Calendário de Faltas</Link>
-            <button onClick={handleLogout} className="bg-custom-red text-white text-center font-bold py-2 px-4 rounded-lg hover:bg-custom-red-hover transition-colors text-sm">Sair</button>
+          <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
+            <Link to="/cadastrar-materia" className="bg-purple-800 text-white text-center font-bold py-1.5 px-2 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs whitespace-nowrap">Adicionar Matéria</Link>
+            <Link to="/calendario-faltas" className="bg-purple-800 text-white text-center font-bold py-1.5 px-2 md:px-3 rounded-lg hover:bg-purple-900 transition-colors text-xs whitespace-nowrap">Calendário de Faltas</Link>
+            <button onClick={handleLogout} className="bg-custom-red text-white text-center font-bold py-1.5 px-2 md:px-3 rounded-lg hover:bg-custom-red-hover transition-colors text-xs whitespace-nowrap">Sair</button>
           </div>
         </header>
         <main>
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">Minhas Matérias</h2>
+          <h2 className="text-lg font-semibold mb-3 text-gray-700">Minhas Matérias</h2>
           {error ? (
-            <p className="text-red-500 bg-red-100 p-3 rounded-md">{error}</p>
+            <p className="text-red-500 bg-red-100 p-2 rounded-md text-sm">{error}</p>
           ) : materias.length > 0 ? (
-            <div className="max-h-[60vh] overflow-y-auto pr-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+            <div className="max-h-[50vh] overflow-y-auto pr-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {materias.map(materia => {
                   const faltasCount = materia.faltas.length;
                   const limiteFaltas = materia.limiteFaltas;
@@ -117,31 +117,31 @@ const Dashboard = () => {
                   else if (percentual >= 50) { progressBarColor = 'bg-yellow-500'; }
 
                   return (
-                    <div key={materia._id} className="relative bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[120px] max-w-xs">
+                    <div key={materia._id} className="relative bg-white p-3 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[100px] max-w-xs">
                       {/* Ícone de lixeira */}
                       <button
                         onClick={(e) => handleDeleteMateria(materia._id, materia.nome, e)}
-                        className="absolute top-2 right-2 text-custom-red hover:text-custom-red-hover transition-colors p-1 rounded-full hover:bg-red-50"
+                        className="absolute top-1 right-1 text-custom-red hover:text-custom-red-hover transition-colors p-1 rounded-full hover:bg-red-50"
                         title="Excluir matéria"
                       >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
                       </button>
                       
                       <Link to={`/materia/${materia._id}`} className="flex-1">
                         <div>
-                          <h3 className="font-bold text-lg text-purple-800 truncate">{materia.nome}</h3>
-                          <p className="text-gray-600 mt-1 text-sm">Professor(a): {materia.professor}</p>
+                          <h3 className="font-bold text-base text-purple-800 truncate">{materia.nome}</h3>
+                          <p className="text-gray-600 mt-1 text-xs">Professor(a): {materia.professor}</p>
                         </div>
 
-                        <div className="mt-3 pt-3 border-t border-gray-200">
+                        <div className="mt-2 pt-2 border-t border-gray-200">
                           <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
                             <span>Progresso de Faltas ({Math.floor(percentual)}%)</span>
                             <span>{faltasCount} / {limiteFaltas}</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div className={`${progressBarColor} h-2 rounded-full`} style={{ width: `${percentualParaBarra}%` }}></div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div className={`${progressBarColor} h-1.5 rounded-full`} style={{ width: `${percentualParaBarra}%` }}></div>
                           </div>
                         </div>
                       </Link>
@@ -151,7 +151,7 @@ const Dashboard = () => {
               </div>
             </div>
           ) : (
-            <p className="text-gray-500 text-center mt-4">Você ainda não cadastrou nenhuma matéria.</p>
+            <p className="text-gray-500 text-center mt-3 text-sm">Você ainda não cadastrou nenhuma matéria.</p>
           )}
         </main>
       </div>

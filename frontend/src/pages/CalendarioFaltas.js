@@ -63,7 +63,7 @@ const CalendarioFaltas = () => {
           }}
           onMouseLeave={() => setTooltipData({ show: false, content: [], x: 0, y: 0 })}
         >
-          <div className="w-8 h-8 rounded-full bg-red-500 border-2 border-white shadow-md flex items-center justify-center">
+          <div className="w-6 h-6 rounded-full bg-red-500 border-2 border-white shadow-md flex items-center justify-center">
             <span className="text-white text-xs font-semibold">{date.getDate()}</span>
           </div>
         </div>
@@ -110,31 +110,31 @@ const CalendarioFaltas = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4">
-      <div className="w-full bg-[#F5F5F5] p-6 rounded-2xl shadow-2xl" style={{ maxWidth: '600px' }}>
-        <div className="bg-purple-800 text-white p-6 rounded-2xl mb-6">
-          <h2 className="text-3xl font-bold text-center">Calendário de Faltas</h2>
-          <p className="text-center mt-2 opacity-90">Visualize e gerencie suas faltas por data</p>
+      <div className="w-full bg-[#F5F5F5] p-4 rounded-2xl shadow-2xl" style={{ maxWidth: '480px' }}>
+        <div className="bg-purple-800 text-white p-4 rounded-2xl mb-4">
+          <h2 className="text-xl font-bold text-center">Calendário de Faltas</h2>
+          <p className="text-center mt-1 opacity-90 text-sm">Visualize e gerencie suas faltas por data</p>
         </div>
         
-        <div className="mb-6">
+        <div className="mb-4">
           <Link 
             to="/dashboard" 
-            className="bg-gray-600 text-white text-center font-bold py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors text-sm inline-block"
+            className="bg-gray-600 text-white text-center font-bold py-1.5 px-3 rounded-lg hover:bg-gray-700 transition-colors text-xs inline-block"
           >
             Voltar
           </Link>
         </div>
         
-        <div className="bg-[#F5F5F5] p-8 rounded-2xl shadow-lg">
+        <div className="bg-[#F5F5F5] p-4 rounded-2xl shadow-lg">
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-3 text-sm">
               {error}
             </div>
           )}
           
           {loading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            <div className="flex items-center justify-center h-48">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
             </div>
           ) : (
             <div className="flex justify-center">
@@ -152,12 +152,12 @@ const CalendarioFaltas = () => {
 
         {showAddFalta && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
-              <h3 className="text-xl font-bold mb-4 text-gray-800">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-4">
+              <h3 className="text-lg font-bold mb-3 text-gray-800">
                 Adicionar matéria que faltou em {selectedDate && selectedDate.toLocaleDateString('pt-BR')}
               </h3>
               <select
-                className="w-full border-2 border-gray-200 rounded-lg p-3 mb-4 focus:border-purple-500 focus:outline-none transition-colors"
+                className="w-full border-2 border-gray-200 rounded-lg p-2 mb-3 focus:border-purple-500 focus:outline-none transition-colors text-sm"
                 value={materiaSelecionada}
                 onChange={e => setMateriaSelecionada(e.target.value)}
               >
@@ -166,16 +166,16 @@ const CalendarioFaltas = () => {
                   <option key={m._id} value={m._id}>{m.nome}</option>
                 ))}
               </select>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <button
-                  className="flex-1 bg-purple-800 text-white py-3 px-4 rounded-lg hover:bg-purple-900 transition-colors font-semibold disabled:opacity-50"
+                  className="flex-1 bg-purple-800 text-white py-2 px-3 rounded-lg hover:bg-purple-900 transition-colors font-semibold disabled:opacity-50 text-sm"
                   onClick={handleAddFalta}
                   disabled={!materiaSelecionada}
                 >
                   Adicionar
                 </button>
                 <button
-                  className="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-400 transition-colors font-semibold"
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-400 transition-colors font-semibold text-sm"
                   onClick={() => setShowAddFalta(false)}
                 >
                   Cancelar
@@ -188,7 +188,7 @@ const CalendarioFaltas = () => {
 
       {tooltipData.show && (
         <div
-          className="fixed z-50 px-3 py-2 bg-purple-800 text-white text-sm rounded-lg shadow-2xl border border-purple-700 pointer-events-none"
+          className="fixed z-50 px-2 py-1 bg-purple-800 text-white text-xs rounded-lg shadow-2xl border border-purple-700 pointer-events-none"
           style={{
             left: tooltipData.x,
             top: tooltipData.y,
@@ -215,7 +215,7 @@ const CalendarioFaltas = () => {
       <style>{`
         .calendar-container {
           width: 100%;
-          max-width: 600px;
+          max-width: 480px;
         }
         
         .modern-calendar {
@@ -228,7 +228,7 @@ const CalendarioFaltas = () => {
         .modern-calendar .react-calendar__navigation {
           background: #6b21a8 !important;
           border-radius: 12px 12px 0 0 !important;
-          padding: 8px 0 16px 0 !important;
+          padding: 6px 0 12px 0 !important;
           margin-bottom: 0 !important;
         }
         
@@ -236,9 +236,9 @@ const CalendarioFaltas = () => {
           background: transparent !important;
           border: none !important;
           color: white !important;
-          font-size: 18px !important;
+          font-size: 16px !important;
           font-weight: 600 !important;
-          padding: 8px 12px !important;
+          padding: 6px 10px !important;
           border-radius: 8px !important;
           transition: all 0.2s !important;
         }
@@ -248,13 +248,13 @@ const CalendarioFaltas = () => {
         }
         
         .modern-calendar .react-calendar__navigation__label {
-          font-size: 20px !important;
+          font-size: 18px !important;
           font-weight: 700 !important;
         }
         
         .modern-calendar .react-calendar__month-view__weekdays {
           background: #f8fafc !important;
-          padding: 12px 0 !important;
+          padding: 8px 0 !important;
           border-bottom: 1px solid #e2e8f0 !important;
         }
         
@@ -262,7 +262,7 @@ const CalendarioFaltas = () => {
           font-weight: 600 !important;
           color: #64748b !important;
           text-transform: uppercase !important;
-          font-size: 12px !important;
+          font-size: 11px !important;
           letter-spacing: 0.5px !important;
         }
         
@@ -275,11 +275,11 @@ const CalendarioFaltas = () => {
         .modern-calendar .react-calendar__tile {
           background: transparent !important;
           border: none !important;
-          padding: 12px !important;
+          padding: 8px !important;
           position: relative !important;
           transition: all 0.2s !important;
           border-radius: 8px !important;
-          margin: 2px !important;
+          margin: 1px !important;
           color: #374151 !important;
         }
         
