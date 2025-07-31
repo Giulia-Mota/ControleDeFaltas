@@ -3,6 +3,7 @@ import Calendar from 'react-calendar';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import 'react-calendar/dist/Calendar.css';
+import './CalendarioFaltas.css';
 
 const CalendarioFaltas = () => {
   const [faltasPorData, setFaltasPorData] = useState({});
@@ -261,9 +262,22 @@ const CalendarioFaltas = () => {
               <div className="calendar-container">
                 <Calendar
                   onClickDay={handleDayClick}
-                  tileContent={getTileContent}
+                  tileContent={({ date, view }) => (
+                    <div className="flex items-center justify-center w-full h-full">
+                      <span className="text-xs font-semibold">
+                        {date.getDate()}
+                      </span>
+                      {getTileContent({ date, view })}
+                    </div>
+                  )}
                   tileClassName={getTileClassName}
                   className="modern-calendar"
+                  formatMonthYear={(locale, date) =>
+                    date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })
+                  }
+                  formatShortWeekday={(locale, date) =>
+                    date.toLocaleDateString('pt-BR', { weekday: 'short' }).charAt(0).toUpperCase() + date.toLocaleDateString('pt-BR', { weekday: 'short' }).slice(1,3)
+                  }
                 />
               </div>
             </div>
