@@ -356,7 +356,7 @@ const CalendarioFaltas = () => {
         )}
       </div>
 
-      {tooltipData.show && (
+      {tooltipData.show && !showAddFalta && (
         <div
           className="fixed z-50 px-2 py-1 bg-purple-800 text-white text-xs rounded-lg shadow-2xl border border-purple-700 pointer-events-none"
           style={{
