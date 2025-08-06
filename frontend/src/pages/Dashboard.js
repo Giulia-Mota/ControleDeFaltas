@@ -49,11 +49,10 @@ const SortableItem = ({ materia, handleDeleteMateria, handleEditMateria }) => {
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{ ...style, touchAction: 'pan-y' }} // Permite scroll vertical no mobile
       className={`relative bg-white p-3 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between min-h-[100px] max-w-xs touch-manipulation ${
         isDragging ? 'shadow-xl scale-105 rotate-2 z-50' : ''
       }`}
-      style={{ ...style, touchAction: 'pan-y' }} // Permite scroll vertical no mobile
     >
       {/* Ícone de arrastar (handle) */}
       <div
@@ -130,7 +129,7 @@ const EditMateriaModal = ({ materia, isOpen, onClose, onSave }) => {
 
   useEffect(() => {
     if (materia && isOpen) {
-      console.log('Inicializando formData com materia:', materia);
+      // console.log('Inicializando formData com materia:', materia);
       setFormData({
         nome: materia.nome || '',
         professor: materia.professor || '',
@@ -179,13 +178,13 @@ const EditMateriaModal = ({ materia, isOpen, onClose, onSave }) => {
         aulasPorDia: parseInt(formData.aulasPorDia, 10),
       };
 
-      console.log('Enviando dados para edição:', dadosParaEnviar);
+      // console.log('Enviando dados para edição:', dadosParaEnviar);
 
-      const response = await api.put(`/materias/${materia._id}`, dadosParaEnviar, {
+      await api.put(`/materias/${materia._id}`, dadosParaEnviar, {
         headers: { 'x-auth-token': token }
       });
       
-      console.log('Resposta do backend após edição:', response.data);
+      // console.log('Resposta do backend após edição:', response.data);
       
       onSave();
       onClose();
@@ -468,7 +467,7 @@ const Dashboard = () => {
         headers: { 'x-auth-token': token }
       });
       
-      console.log('Matérias recarregadas após edição:', materiasResponse.data);
+      // console.log('Matérias recarregadas após edição:', materiasResponse.data);
       
       setMaterias(materiasResponse.data);
     } catch (err) {

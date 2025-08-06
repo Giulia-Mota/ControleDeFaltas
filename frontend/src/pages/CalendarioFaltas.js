@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Calendar from 'react-calendar';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
-import 'react-calendar/dist/Calendar.css';
-import './CalendarioFaltas.css';
+// Importações de CSS movidas para index.js para garantir ordem correta
 
 const CalendarioFaltas = () => {
   const [faltasPorData, setFaltasPorData] = useState({});
@@ -28,8 +27,6 @@ const CalendarioFaltas = () => {
       const faltasResp = await api.get('/faltas/usuario', {
         headers: { 'x-auth-token': token }
       });
-      console.log('=== DADOS DE FALTAS RECEBIDOS ===');
-      console.log('Faltas por data:', faltasResp.data);
       setFaltasPorData(faltasResp.data);
       const materiasResp = await api.get('/materias', {
         headers: { 'x-auth-token': token }
@@ -47,8 +44,12 @@ const CalendarioFaltas = () => {
     fetchFaltasEMaterias();
   }, [fetchFaltasEMaterias]);
 
-  const getTileContent = ({ date, view }) => {
+  const getTileContent = ({ date, view, activeStartDate }) => {
     if (view !== 'month') return null;
+    // Só renderiza conteúdo para dias do mês visível
+    if (date.getMonth() !== activeStartDate.getMonth()) {
+      return null;
+    }
     const dateStr = date.toISOString().split('T')[0];
     if (faltasPorData[dateStr]) {
       const materiasFaltadas = faltasPorData[dateStr].map(f => f.materiaNome);
@@ -75,8 +76,12 @@ const CalendarioFaltas = () => {
     return null;
   };
 
-  const getTileClassName = ({ date, view }) => {
+  const getTileClassName = ({ date, view, activeStartDate }) => {
     if (view !== 'month') return '';
+    // Só aplica classe para dias do mês visível
+    if (date.getMonth() !== activeStartDate.getMonth()) {
+      return 'react-calendar__tile--neighboringMonth';
+    }
     const dateStr = date.toISOString().split('T')[0];
     if (faltasPorData[dateStr]) {
       return 'react-calendar__tile--faltou';
@@ -133,33 +138,23 @@ const CalendarioFaltas = () => {
     try {
       const token = localStorage.getItem('token');
       
-      console.log('=== DEBUG GERENCIAR FALTAS ===');
-      console.log('Data selecionada:', dateStr);
-      console.log('Matérias selecionadas:', materiasSelecionadas);
-      console.log('Faltas existentes na data:', temFaltasNaData);
       
       if (temFaltasNaData) {
-        console.log('=== EDITANDO FALTAS EXISTENTES ===');
         
         // Se não tem matérias selecionadas, remover todas as faltas
         if (materiasSelecionadas.length === 0) {
-          console.log('=== REMOVENDO TODAS AS FALTAS ===');
           const promises = temFaltasNaData.map(falta => {
-            console.log(`Removendo falta: ${falta.materiaId}/faltas/${falta.faltaId}`);
             return api.delete(`/materias/${falta.materiaId}/faltas/${falta.faltaId}`, {
               headers: { 'x-auth-token': token }
             });
           });
           
           await Promise.all(promises);
-          console.log('Todas as faltas removidas com sucesso');
         } else {
           // Remover faltas das matérias não selecionadas
           const materiasParaRemover = temFaltasNaData.filter(f => !materiasSelecionadas.includes(f.materiaId));
-          console.log('Matérias para remover faltas:', materiasParaRemover);
           
           const promisesRemover = materiasParaRemover.map(falta => {
-            console.log(`Removendo falta: ${falta.materiaId}/faltas/${falta.faltaId}`);
             return api.delete(`/materias/${falta.materiaId}/faltas/${falta.faltaId}`, {
               headers: { 'x-auth-token': token }
             });
@@ -169,10 +164,8 @@ const CalendarioFaltas = () => {
           const materiasParaAdicionar = materiasSelecionadas.filter(materiaId => 
             !temFaltasNaData.some(f => f.materiaId === materiaId)
           );
-          console.log('Matérias para adicionar faltas:', materiasParaAdicionar);
           
           const promisesAdicionar = materiasParaAdicionar.map(materiaId => {
-            console.log(`Adicionando falta: ${materiaId}/faltas`);
             return api.post(`/materias/${materiaId}/faltas`, {
               date: dateStr
             }, {
@@ -180,9 +173,7 @@ const CalendarioFaltas = () => {
             });
           });
 
-          console.log('Executando operações...');
           await Promise.all([...promisesRemover, ...promisesAdicionar]);
-          console.log('Operações concluídas com sucesso');
         }
         
       } else {
@@ -190,7 +181,6 @@ const CalendarioFaltas = () => {
         
         // Adicionar faltas para todas as matérias selecionadas
         const promises = materiasSelecionadas.map(materiaId => {
-          console.log(`Adicionando falta: ${materiaId}/faltas`);
           return api.post(`/materias/${materiaId}/faltas`, {
             date: dateStr
           }, {
@@ -198,17 +188,13 @@ const CalendarioFaltas = () => {
           });
         });
 
-        console.log('Executando operações...');
         await Promise.all(promises);
-        console.log('Operações concluídas com sucesso');
       }
       
       setShowAddFalta(false);
       setMateriasSelecionadas([]);
       
-      console.log('Recarregando dados...');
       await fetchFaltasEMaterias();
-      console.log('Dados recarregados com sucesso');
       
     } catch (err) {
       console.error('=== ERRO DETALHADO ===');
@@ -262,22 +248,15 @@ const CalendarioFaltas = () => {
               <div className="calendar-container">
                 <Calendar
                   onClickDay={handleDayClick}
-                  tileContent={({ date, view }) => (
-                    <div className="flex items-center justify-center w-full h-full">
-                      <span className="text-xs font-semibold">
-                        {date.getDate()}
-                      </span>
-                      {getTileContent({ date, view })}
-                    </div>
-                  )}
+                  tileContent={getTileContent}
                   tileClassName={getTileClassName}
                   className="modern-calendar"
+                  locale="pt-BR"
                   formatMonthYear={(locale, date) =>
-                    date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })
+                    date.toLocaleString('pt-BR', { month: 'short', year: 'numeric' })
                   }
-                  formatShortWeekday={(locale, date) =>
-                    date.toLocaleDateString('pt-BR', { weekday: 'short' }).charAt(0).toUpperCase() + date.toLocaleDateString('pt-BR', { weekday: 'short' }).slice(1,3)
-                  }
+                  showFixedNumberOfWeeks={true}
+                  // Removido formatShortWeekday customizado para garantir 7 colunas corretas
                 />
               </div>
             </div>
@@ -406,49 +385,73 @@ const CalendarioFaltas = () => {
       <style>{`
         .calendar-container {
           width: 100%;
+          min-width: 350px;
           max-width: 480px;
         }
-        
         .modern-calendar {
           width: 100% !important;
+          min-width: 350px !important;
           border: none !important;
           background: transparent !important;
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         }
-        
+        .modern-calendar .react-calendar__month-view__weekdays,
+        .modern-calendar .react-calendar__month-view__days {
+          display: grid !important;
+          grid-template-columns: repeat(7, 1fr) !important;
+        }
         .modern-calendar .react-calendar__navigation {
           background: #6b21a8 !important;
           border-radius: 12px 12px 0 0 !important;
           padding: 6px 0 12px 0 !important;
           margin-bottom: 0 !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 0.5rem !important;
         }
-        
         .modern-calendar .react-calendar__navigation button {
+          color: #fff !important;
           background: transparent !important;
+          font-size: 1.1rem !important;
+          min-width: 28px !important;
+          min-height: 28px !important;
           border: none !important;
-          color: white !important;
-          font-size: 16px !important;
-          font-weight: 600 !important;
-          padding: 6px 10px !important;
+          outline: none !important;
+          cursor: pointer !important;
           border-radius: 8px !important;
-          transition: all 0.2s !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          transition: background 0.18s cubic-bezier(0.4,0,0.2,1), color 0.18s cubic-bezier(0.4,0,0.2,1);
         }
-        
-        .modern-calendar .react-calendar__navigation button:hover {
-          background: rgba(255, 255, 255, 0.2) !important;
+        .modern-calendar .react-calendar__navigation button:hover:not(:disabled) {
+          background: rgba(255,255,255,0.18) !important;
         }
-        
+        .modern-calendar .react-calendar__navigation button:active:not(:disabled) {
+          background: rgba(255,255,255,0.28) !important;
+        }
+        .modern-calendar .react-calendar__navigation button:disabled {
+          opacity: 0.5 !important;
+          cursor: not-allowed !important;
+        }
         .modern-calendar .react-calendar__navigation__label {
-          font-size: 18px !important;
-          font-weight: 700 !important;
+          color: #fff !important;
+          font-weight: bold !important;
+          font-size: 1rem !important;
+          flex: 1 1 0%;
+          text-align: center !important;
+          border-radius: 8px !important;
+          transition: background 0.18s cubic-bezier(0.4,0,0.2,1), color 0.18s cubic-bezier(0.4,0,0.2,1);
+          pointer-events: auto;
+          cursor: pointer;
         }
-        
-        .modern-calendar .react-calendar__month-view__weekdays {
-          background: #f8fafc !important;
-          padding: 8px 0 !important;
-          border-bottom: 1px solid #e2e8f0 !important;
+        .modern-calendar .react-calendar__navigation__label:hover {
+          background: rgba(255,255,255,0.13) !important;
         }
-        
+        .modern-calendar .react-calendar__navigation__label:active {
+          background: rgba(255,255,255,0.22) !important;
+        }
         .modern-calendar .react-calendar__month-view__weekdays__weekday {
           font-weight: 600 !important;
           color: #64748b !important;
@@ -456,53 +459,42 @@ const CalendarioFaltas = () => {
           font-size: 11px !important;
           letter-spacing: 0.5px !important;
         }
-        
-        .modern-calendar .react-calendar__month-view__days {
-          background: white !important;
-          border-radius: 0 0 12px 12px !important;
-          overflow: hidden !important;
-        }
-        
         .modern-calendar .react-calendar__tile {
           background: transparent !important;
           border: none !important;
           padding: 8px !important;
           position: relative !important;
-          transition: all 0.2s !important;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
           border-radius: 8px !important;
           margin: 1px !important;
           color: #374151 !important;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         }
-        
         .modern-calendar .react-calendar__tile:hover {
           background: #f1f5f9 !important;
           transform: scale(1.05) !important;
         }
-        
+        .modern-calendar .react-calendar__tile:active {
+          transform: scale(0.97) !important;
+        }
         .modern-calendar .react-calendar__tile--active {
           background: #3b82f6 !important;
           color: white !important;
+          transform: scale(1.05) !important;
         }
-        
         .modern-calendar .react-calendar__tile--faltou {
           background: transparent !important;
           color: #374151 !important;
         }
-        
         .modern-calendar .react-calendar__tile--faltou:hover {
           background: rgba(239, 68, 68, 0.1) !important;
         }
-        
         .modern-calendar .react-calendar__tile--now {
           background: #fef3c7 !important;
           color: #92400e !important;
           font-weight: 600 !important;
         }
-        
-        .modern-calendar .react-calendar__tile--neighboringMonth {
-          color: #9ca3af !important;
-        }
-        
+        /* Regras para dias de outros meses movidas para CalendarioFaltas.css para garantir aplicação */
         .modern-calendar .react-calendar__tile abbr {
           color: inherit !important;
           text-decoration: none !important;

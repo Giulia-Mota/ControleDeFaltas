@@ -1,3 +1,39 @@
+
+/* Dias do mês atual: escuros e negrito (reforçado) */
+.modern-calendar .react-calendar__tile:not(.react-calendar__tile--neighboringMonth),
+.modern-calendar .react-calendar__tile:not(.react-calendar__tile--neighboringMonth) abbr {
+  color: #22223b !important;
+  font-weight: 700 !important;
+}
+
+
+/* Dias de outros meses: visíveis e mais claros para manter alinhamento */
+.modern-calendar .react-calendar__tile--neighboringMonth,
+.modern-calendar .react-calendar__tile--neighboringMonth abbr {
+  color: #cbd5e1 !important;
+  font-weight: 400 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+  opacity: 0.6 !important;
+  text-decoration: none !important;
+}
+
+/* Garante que o <abbr> não tenha sublinhado */
+.modern-calendar .react-calendar__tile abbr {
+  text-decoration: none !important;
+}
+
+/* Data selecionada: fundo azul, número branco. Ao passar mouse, número preto */
+.modern-calendar .react-calendar__tile--active {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+.modern-calendar .react-calendar__tile--active:hover,
+.modern-calendar .react-calendar__tile--active:focus {
+  background: #3b82f6 !important;
+  color: #111 !important;
+}
 .react-calendar__navigation__label {
   justify-content: center !important;
   text-align: center !important;
