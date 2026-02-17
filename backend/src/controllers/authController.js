@@ -33,7 +33,7 @@ const login = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: 'Credenciais inválidas' });
     }
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '365d' });
     res.json({ token });
   } catch (error) {
     res.status(500).json({ message: 'Erro no servidor' });
